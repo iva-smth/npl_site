@@ -10,7 +10,6 @@ from research.views import ResearchDirectionViewSet, ResearchGroupViewSet
 from team.views import EmployeeViewSet
 from equipment.views import EquipmentViewSet
 from publications.views import PublicationViewSet
-from core.views import home_view
 
 router = DefaultRouter()
 router.register(r'directions', ResearchDirectionViewSet, basename='direction')
@@ -25,7 +24,8 @@ urlpatterns = [
     path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/v1/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/v1/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path('', home_view, name='home'),
+    path('', include('core.urls')),
+    path('api/v1/auth/', include('users.urls')),
 ]
 
 if settings.DEBUG:
