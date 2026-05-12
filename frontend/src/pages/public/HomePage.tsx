@@ -1,6 +1,10 @@
+// src/pages/public/HomePage.tsx
 import { useEffect, useState } from 'react';
-import { directionsApi } from '../../api/services/directions';
-import type { ResearchDirection } from '../../types';
+import { Link } from 'react-router-dom';
+// 1. Импортируем тип
+import type { ResearchDirection } from '../../types'; 
+// 2. Импортируем сервис
+import { directionsApi } from '../../api/services/directions'; 
 
 export function HomePage() {
   const [directions, setDirections] = useState<ResearchDirection[]>([]);
@@ -9,11 +13,12 @@ export function HomePage() {
   useEffect(() => {
     directionsApi.getAll()
       .then((response) => {
+        // 3. Проверяем наличие results в ответе
         if (response.data?.results) {
           setDirections(response.data.results);
         }
       })
-      .catch((error) => console.error(error))
+      .catch((error) => console.error("Ошибка загрузки направлений:", error))
       .finally(() => setLoading(false));
   }, []);
 
@@ -38,18 +43,17 @@ export function HomePage() {
         <h2 className="text-2xl font-bold mb-6">Направления исследований</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {directions.map((direction) => (
-            <div key={direction.id} className="border rounded-lg p-6 hover:shadow-lg transition">
+            <Link 
+              key={direction.id} 
+              to={`/directions/${direction.slug}`}
+              className="border rounded-lg p-6 hover:shadow-lg transition block"
+            >
               <h3 className="text-xl font-bold mb-2">{direction.title}</h3>
               <p className="text-gray-600 mb-4">
                 {direction.description.substring(0, 100)}...
               </p>
-              <a 
-                href={`/directions/${direction.slug}`}
-                className="text-primary hover:underline"
-              >
-                Подробнее →
-              </a>
-            </div>
+              <span className="text-primary hover:underline">Подробнее &rarr;</span>
+            </Link>
           ))}
         </div>
       </section>

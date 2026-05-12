@@ -1,9 +1,9 @@
 ================================================================================
 ФРОНТЕНД ЭКСПОРТ
 ================================================================================
-Дата экспорта: 2026-05-12 02:44:35
-Всего файлов: 27
-Общий размер: 23.00 KB
+Дата экспорта: 2026-05-12 20:27:35
+Всего файлов: 33
+Общий размер: 42.14 KB
 ================================================================================
 
 📋 ОГЛАВЛЕНИЕ
@@ -17,24 +17,30 @@
   7. src\api\client.ts
   8. src\api\services\auth.ts
   9. src\api\services\directions.ts
- 10. src\components\layout\Footer.tsx
- 11. src\components\layout\Header.tsx
- 12. src\components\layout\Layout.tsx
- 13. src\index.css
- 14. src\main.tsx
- 15. src\pages\admin\Dashboard.tsx
- 16. src\pages\admin\LoginPage.tsx
- 17. src\pages\public\DirectionPage.tsx
- 18. src\pages\public\DirectionsPage.tsx
- 19. src\pages\public\EquipmentPage.tsx
- 20. src\pages\public\HomePage.tsx
- 21. src\pages\public\PublicationsPage.tsx
- 22. src\pages\public\TeamPage.tsx
- 23. src\types\api.ts
- 24. src\types\index.ts
- 25. tailwind.config.js
- 26. tsconfig.json
- 27. vite.config.ts
+ 10. src\api\services\equipment.ts
+ 11. src\components\CardList.tsx
+ 12. src\components\Slider.tsx
+ 13. src\components\Tabs.tsx
+ 14. src\components\layout\Footer.tsx
+ 15. src\components\layout\Header.tsx
+ 16. src\components\layout\Layout.tsx
+ 17. src\hooks\useDebounce.ts
+ 18. src\index.css
+ 19. src\main.tsx
+ 20. src\pages\admin\Dashboard.tsx
+ 21. src\pages\admin\LoginPage.tsx
+ 22. src\pages\public\DirectionPage.tsx
+ 23. src\pages\public\DirectionsPage.tsx
+ 24. src\pages\public\EquipmentDetailPage.tsx
+ 25. src\pages\public\EquipmentPage.tsx
+ 26. src\pages\public\HomePage.tsx
+ 27. src\pages\public\PublicationsPage.tsx
+ 28. src\pages\public\TeamPage.tsx
+ 29. src\types\api.ts
+ 30. src\types\index.ts
+ 31. tailwind.config.js
+ 32. tsconfig.json
+ 33. vite.config.ts
 
 ================================================================================
 
@@ -338,7 +344,7 @@ export default {
 
 ================================================================================
 📄 ФАЙЛ: src\App.tsx
-📊 Размер: 1404 байт
+📊 Размер: 1648 байт
 ================================================================================
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -363,6 +369,9 @@ function App() {
           <Route path="directions" element={<DirectionsPage />} />
           <Route path="directions/:slug" element={<DirectionPage />} />
           <Route path="equipment" element={<EquipmentPage />} />
+          {/* Добавь этот роут ПОСЛЕ общего списка оборудования */}
+          <Route path="equipment/:slug" element={<EquipmentDetailPage />} />
+          {/* ... остальные роуты ... */}
           <Route path="publications" element={<PublicationsPage />} />
           <Route path="team" element={<TeamPage />} />
         </Route>
@@ -448,21 +457,292 @@ export const authApi = {
 
 ================================================================================
 📄 ФАЙЛ: src\api\services\directions.ts
-📊 Размер: 389 байт
+📊 Размер: 822 байт
 ================================================================================
 
-import axios from 'axios';
-import type { ResearchDirection } from '../../types';
+// src/api/services/directions.ts
+import { apiClient } from '../client'; // Импортируем наш единый клиент
+import type { ResearchDirection, ResearchGroup } from '../../types';
 import type { PaginatedResponse } from '../../types/api';
 
-const api = axios.create({
-  baseURL: '/api/v1',
-});
-
 export const directionsApi = {
-  getAll: () => api.get<PaginatedResponse<ResearchDirection>>('/directions/'),
-  getBySlug: (slug: string) => api.get<ResearchDirection>(`/directions/${slug}/`),
+  // Получение списка направлений (с пагинацией)
+  getAll: () => 
+    apiClient.get<PaginatedResponse<ResearchDirection>>('/directions/'),
+  
+  // Получение конкретного направления по slug
+  getBySlug: (slug: string) => 
+    apiClient.get<ResearchDirection>(`/directions/${slug}/`),
+
+  // Если нужно получить список групп отдельно (опционально)
+  getGroups: () =>
+    apiClient.get<ResearchGroup[]>('/groups/'),
 };
+
+================================================================================
+📄 ФАЙЛ: src\api\services\equipment.ts
+📊 Размер: 534 байт
+================================================================================
+
+// src/api/services/equipment.ts
+import { apiClient } from '../client';
+import type { Equipment, EquipmentCategory } from '../../types';
+
+export const equipmentApi = {
+  getAll: (params?: any) => 
+    apiClient.get('/equipment/', { params }),
+  
+  getBySlug: (slug: string) => 
+    apiClient.get<Equipment>(`/equipment/${slug}/`),
+
+  // Получаем корневые категории (с вложенными детьми внутри)
+  getCategories: () => 
+    apiClient.get<EquipmentCategory[]>('/equipment-categories/'),
+};
+
+================================================================================
+📄 ФАЙЛ: src\components\CardList.tsx
+📊 Размер: 3128 байт
+================================================================================
+
+import type { ResearchGroup, Employee, Equipment } from '../types';
+
+interface CardListProps {
+  items: ResearchGroup[] | Employee[] | Equipment[];
+  type: 'groups' | 'employees' | 'equipment';
+}
+
+interface GroupItem {
+  title: string;
+  description: string;
+}
+
+interface EmployeeItem {
+  full_name: string;
+  position_label: string;
+  position: string;
+  photo_url?: string;
+}
+
+interface EquipmentItem {
+  title: string;
+  description: string;
+  specs?: string;
+  image_url?: string;
+}
+
+type CardItem = GroupItem | EmployeeItem | EquipmentItem;
+
+export function CardList({ items, type }: CardListProps) {
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-600">Нет данных</p>
+      </div>
+    );
+  }
+
+  const renderCard = (item: CardItem, index: number) => {
+    switch (type) {
+      case 'groups':
+        const groupItem = item as GroupItem;
+        return (
+          <div key={index} className="border rounded-lg p-6 hover:shadow-lg transition">
+            <h3 className="text-xl font-bold mb-2">{groupItem.title}</h3>
+            <p className="text-gray-600 mb-4">{groupItem.description}</p>
+          </div>
+        );
+      case 'employees':
+        const employeeItem = item as EmployeeItem;
+        return (
+          <div key={index} className="border rounded-lg p-6 hover:shadow-lg transition flex items-center space-x-4">
+            {employeeItem.photo_url && (
+              <img
+                src={employeeItem.photo_url}
+                alt={employeeItem.full_name}
+                className="w-16 h-16 rounded-full object-cover"
+              />
+            )}
+            <div className="flex-grow">
+              <h3 className="text-lg font-bold mb-1">{employeeItem.full_name}</h3>
+              <p className="text-gray-600 text-sm mb-2">{employeeItem.position_label}</p>
+              <p className="text-gray-500 text-xs">{employeeItem.position}</p>
+            </div>
+          </div>
+        );
+      case 'equipment':
+        const equipmentItem = item as EquipmentItem;
+        return (
+          <div key={index} className="border rounded-lg p-6 hover:shadow-lg transition">
+            {equipmentItem.image_url && (
+              <img
+                src={equipmentItem.image_url}
+                alt={equipmentItem.title}
+                className="w-full h-48 object-cover rounded-lg mb-4"
+              />
+            )}
+            <h3 className="text-xl font-bold mb-2">{equipmentItem.title}</h3>
+            <p className="text-gray-600 mb-4">{equipmentItem.description}</p>
+            {equipmentItem.specs && (
+              <div className="bg-gray-50 p-3 rounded">
+                <p className="text-sm font-medium mb-1">Технические характеристики:</p>
+                <p className="text-sm text-gray-600">{equipmentItem.specs}</p>
+              </div>
+            )}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {items.map((item, index) => renderCard(item, index))}
+    </div>
+  );
+}
+
+================================================================================
+📄 ФАЙЛ: src\components\Slider.tsx
+📊 Размер: 1954 байт
+================================================================================
+
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import type { ResearchDirection } from '../types';
+
+interface DirectionSliderProps {
+  directions: ResearchDirection[];
+}
+
+export function DirectionSlider({ directions }: DirectionSliderProps) {
+  return (
+    <div className="mb-12">
+      <h2 className="text-2xl font-bold mb-6">Направления исследований</h2>
+      <Swiper
+        modules={[Navigation, Pagination]}
+        spaceBetween={30}
+        slidesPerView={1}
+        navigation
+        pagination={{ clickable: true }}
+        breakpoints={{
+          640: {
+            slidesPerView: 1,
+          },
+          768: {
+            slidesPerView: 2,
+          },
+          1024: {
+            slidesPerView: 3,
+          },
+        }}
+        className="mb-8"
+      >
+        {directions.map((direction) => (
+          <SwiperSlide key={direction.id}>
+            <div className="border rounded-lg overflow-hidden hover:shadow-lg transition">
+              {direction.image_url && (
+                <img
+                  src={direction.image_url}
+                  alt={direction.title}
+                  className="w-full h-48 object-cover"
+                />
+              )}
+              <div className="p-6">
+                <h3 className="text-xl font-bold mb-2">{direction.title}</h3>
+                <p className="text-gray-600 mb-4">
+                  {direction.description.substring(0, 100)}...
+                </p>
+                <a
+                  href={`/directions/${direction.slug}`}
+                  className="text-primary hover:underline inline-flex items-center"
+                >
+                  Подробнее →
+                </a>
+              </div>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
+}
+
+================================================================================
+📄 ФАЙЛ: src\components\Tabs.tsx
+📊 Размер: 1940 байт
+================================================================================
+
+import { useState, ReactNode, ReactElement } from 'react';
+
+interface TabsProps {
+  children: ReactNode;
+}
+
+interface TabsContentProps {
+  value: string;
+  children: ReactNode;
+}
+
+interface TabsTriggerProps {
+  value: string;
+  children: ReactNode;
+}
+
+export function Tabs({ children }: TabsProps) {
+  const [activeTab, setActiveTab] = useState('overview');
+
+  const handleTabClick = (tabName: string) => {
+    setActiveTab(tabName);
+  };
+
+  return (
+    <div className="w-full">
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8" aria-label="Tabs">
+          {React.Children.toArray(children).filter((child): child is ReactElement => 
+            child.type && child.type.displayName === 'TabsTrigger'
+          ).map((child, index: number) => (
+            <button
+              key={index}
+              onClick={() => handleTabClick(child.props.value)}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === child.props.value
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              {child.props.children}
+            </button>
+          ))}
+        </nav>
+      </div>
+      <div className="mt-6">
+        {React.Children.toArray(children).filter((child): child is ReactElement => 
+          child.type && child.type.displayName === 'TabsContent'
+        ).map((child) =>
+          child.props.value === activeTab && <div key={child.props.value}>{child.props.children}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+Tabs.Trigger = function TabsTrigger({ value, children }: TabsTriggerProps) {
+  return <>{children}</>;
+};
+
+Tabs.Trigger.displayName = 'TabsTrigger';
+
+Tabs.Content = function TabsContent({ value, children }: TabsContentProps) {
+  return <>{children}</>;
+};
+
+Tabs.Content.displayName = 'TabsContent';
 
 ================================================================================
 📄 ФАЙЛ: src\components\layout\Footer.tsx
@@ -565,6 +845,29 @@ export function Layout() {
       <Footer />
     </div>
   );
+}
+
+================================================================================
+📄 ФАЙЛ: src\hooks\useDebounce.ts
+📊 Размер: 385 байт
+================================================================================
+
+import { useState, useEffect } from 'react';
+
+export function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
 }
 
 ================================================================================
@@ -744,7 +1047,7 @@ export function LoginPage() {
 export function DirectionPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4">Направления исследований</h1>
+      <h1 className="text-3xl font-bold mb-4">Направление исследований</h1>
       <p className="text-gray-600">Страница в разработке...</p>
     </div>
   );
@@ -813,15 +1116,294 @@ export function DirectionsPage() {
 }
 
 ================================================================================
-📄 ФАЙЛ: src\pages\public\EquipmentPage.tsx
-📊 Размер: 271 байт
+📄 ФАЙЛ: src\pages\public\EquipmentDetailPage.tsx
+📊 Размер: 3081 байт
 ================================================================================
 
-export function EquipmentPage() {
+import { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { equipmentApi } from '../../api/services/equipment';
+import type { Equipment } from '../../types';
+
+export function EquipmentDetailPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const [equipment, setEquipment] = useState<Equipment | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!slug) return;
+    
+    setLoading(true);
+    equipmentApi.getBySlug(slug)
+      .then((response) => setEquipment(response.data))
+      .catch((error) => console.error(error))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
+    return <div className="container mx-auto px-4 py-8 text-center">Загрузка...</div>;
+  }
+
+  if (!equipment) {
+    return <div className="container mx-auto px-4 py-8 text-center">Оборудование не найдено</div>;
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4">Оборудование</h1>
-      <p className="text-gray-600">Страница в разработке...</p>
+      {/* Хлебные крошки */}
+      <nav className="text-sm text-gray-500 mb-6">
+        <Link to="/" className="hover:text-primary">Главная</Link>
+        <span className="mx-2">/</span>
+        <Link to="/equipment" className="hover:text-primary">Оборудование</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-900">{equipment.title}</span>
+      </nav>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Фото */}
+        <div>
+          {equipment.image_url ? (
+            <img
+              src={equipment.image_url}
+              alt={equipment.title}
+              className="w-full rounded-lg shadow-lg object-cover"
+            />
+          ) : (
+            <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+              Нет изображения
+            </div>
+          )}
+        </div>
+
+        {/* Информация */}
+        <div>
+          <h1 className="text-3xl font-bold mb-4">{equipment.title}</h1>
+          
+          {equipment.category && (
+            <div className="mb-6">
+              <span className="text-sm text-gray-500 uppercase tracking-wide">Категория</span>
+              <p className="text-lg font-medium text-primary">
+                {equipment.category.title}
+              </p>
+            </div>
+          )}
+
+          <div className="prose max-w-none mb-8">
+            <h3 className="text-xl font-bold mb-2">Описание</h3>
+            <p className="text-gray-700 whitespace-pre-line">{equipment.description}</p>
+          </div>
+
+          {equipment.specs && (
+            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <h3 className="text-xl font-bold mb-4">Технические характеристики</h3>
+              <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700">
+                {equipment.specs}
+              </pre>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+📄 ФАЙЛ: src\pages\public\EquipmentPage.tsx
+📊 Размер: 8063 байт
+================================================================================
+
+// src/pages/public/EquipmentPage.tsx
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { apiClient } from '../../api/client'; // Используем единый клиент
+import type { Equipment, EquipmentCategory, ResearchDirection } from '../../types';
+
+export function EquipmentPage() {
+  const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
+  const [categories, setCategories] = useState<EquipmentCategory[]>([]);
+  const [directions, setDirections] = useState<ResearchDirection[]>([]);
+  
+  const [loading, setLoading] = useState(true);
+  
+  // Состояния фильтров
+  const [selectedCategory, setSelectedCategory] = useState<number | ''>('');
+  const [selectedDirection, setSelectedDirection] = useState<number | ''>('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // 1. Загружаем справочники (категории и направления) один раз при монтировании
+  useEffect(() => {
+    // Запрашиваем категории и направления параллельно
+    Promise.all([
+      apiClient.get<EquipmentCategory[]>('/equipment-categories/'),
+      apiClient.get<{ results: ResearchDirection[] }>('/directions/')
+    ])
+      .then(([catRes, dirRes]) => {
+        if (Array.isArray(catRes.data)) {
+          setCategories(catRes.data);
+        }
+        if (dirRes.data?.results) {
+          setDirections(dirRes.data.results);
+        }
+      })
+      .catch(err => console.error("Ошибка загрузки справочников", err));
+  }, []);
+
+  // 2. Загружаем оборудование при изменении фильтров или поиска
+  useEffect(() => {
+    setLoading(true);
+    
+    // Формируем объект параметров только для непустых значений
+    const params: any = {};
+    if (selectedCategory) params.category = selectedCategory;
+    if (selectedDirection) params.direction = selectedDirection;
+    if (searchQuery) params.search = searchQuery;
+
+    apiClient.get<{ results: Equipment[] }>('/equipment/', { params })
+      .then((response) => {
+        if (response.data?.results) {
+          setEquipmentList(response.data.results);
+        } else {
+          setEquipmentList([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Ошибка загрузки оборудования:", error);
+        setEquipmentList([]);
+      })
+      .finally(() => setLoading(false));
+  }, [selectedCategory, selectedDirection, searchQuery]); // Зависимости эффекта
+
+  // Обработчики изменений
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategory(e.target.value ? Number(e.target.value) : '');
+  };
+
+  const handleDirectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedDirection(e.target.value ? Number(e.target.value) : '');
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Каталог оборудования</h1>
+      
+      {/* Панель фильтров */}
+      <div className="bg-gray-50 p-4 rounded-lg mb-8 flex flex-wrap gap-4 items-end">
+        
+        {/* Фильтр по категории */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium mb-1">Категория</label>
+          <select 
+            value={selectedCategory} 
+            onChange={handleCategoryChange}
+            className="border rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">Все категории</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.title}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Фильтр по направлению */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium mb-1">Направление</label>
+          <select 
+            value={selectedDirection} 
+            onChange={handleDirectionChange}
+            className="border rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <option value="">Все направления</option>
+            {directions.map(dir => (
+              <option key={dir.id} value={dir.id}>{dir.title}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Поиск */}
+        <div className="flex flex-col flex-grow min-w-[200px]">
+          <label className="text-sm font-medium mb-1">Поиск</label>
+          <input 
+            type="text" 
+            placeholder="Название или описание..." 
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="border rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        
+        {/* Кнопка сброса (опционально) */}
+        {(selectedCategory || selectedDirection || searchQuery) && (
+          <button 
+            onClick={() => {
+              setSelectedCategory('');
+              setSelectedDirection('');
+              setSearchQuery('');
+            }}
+            className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded border border-red-200"
+          >
+            Сбросить
+          </button>
+        )}
+      </div>
+
+      {/* Список оборудования */}
+      {loading ? (
+        <div className="text-center py-10">Загрузка...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {equipmentList.length > 0 ? (
+            equipmentList.map((item) => (
+              <Link
+                key={item.id}
+                to={`/equipment/${item.slug}`}
+                className="border rounded-lg overflow-hidden hover:shadow-lg transition bg-white flex flex-col h-full"
+              >
+                {item.image_url ? (
+                  <img
+                    src={item.image_url}
+                    alt={item.title}
+                    className="w-full h-48 object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+                    Нет фото
+                  </div>
+                )}
+                
+                <div className="p-4 flex-grow">
+                  <h2 className="text-xl font-bold mb-2">{item.title}</h2>
+                  
+                  {/* Отображение категории и направления в карточке */}
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {item.category && (
+                      <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                        {item.category.title}
+                      </span>
+                    )}
+                    {/* Если нужно отображать направление, убедись, что оно приходит в serializer */}
+                  </div>
+
+                  <p className="text-gray-600 text-sm line-clamp-3">
+                    {item.description}
+                  </p>
+                </div>
+                
+                <div className="px-4 py-2 bg-gray-50 border-t text-primary font-medium text-sm">
+                  Подробнее &rarr;
+                </div>
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500 py-10">
+              Оборудование не найдено. Попробуйте изменить фильтры.
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -932,7 +1514,7 @@ export interface PaginatedResponse<T> {
 
 ================================================================================
 📄 ФАЙЛ: src\types\index.ts
-📊 Размер: 1738 байт
+📊 Размер: 1842 байт
 ================================================================================
 
 export interface ResearchDirection {
@@ -968,6 +1550,14 @@ export interface Employee {
   group: number | null;
 }
 
+export interface EquipmentCategory {
+  id: number;
+  title: string;
+  slug: string;
+  parent: number | null;
+  children?: EquipmentCategory[]; // Рекурсивная структура
+}
+
 export interface Equipment {
   id: number;
   title: string;
@@ -977,12 +1567,6 @@ export interface Equipment {
   image_url: string | null;
   category: EquipmentCategory | null;
   direction: number | null;
-}
-
-export interface EquipmentCategory {
-  id: number;
-  title: string;
-  slug: string;
 }
 
 export interface Publication {

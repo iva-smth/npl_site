@@ -1,17 +1,33 @@
 from django.db import models
 from django.utils.text import slugify
 
-
 class EquipmentCategory(models.Model):
-    """Категории оборудования"""
+    """Категории оборудования с поддержкой вложенности"""
     title = models.CharField("Название категории", max_length=100)
     slug = models.SlugField("URL-метка", unique=True)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+        verbose_name="Родительская категория"
+    )
 
     class Meta:
         verbose_name = "Категория оборудования"
         verbose_name_plural = "Категории оборудования"
+        ordering = ['title']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
+        # Отображаем путь, например: "Электроника > Осциллографы"
+        if self.parent:
+            return f"{self.parent} > {self.title}"
         return self.title
 
 

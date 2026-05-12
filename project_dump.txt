@@ -333,8 +333,6 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
@@ -820,11 +818,37 @@ from rest_framework import viewsets
 from .models import Equipment
 from .serializers import EquipmentSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class EquipmentViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly] 
     queryset = Equipment.objects.all().order_by('title')
     serializer_class = EquipmentSerializer
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['category', 'direction']
+    search_fields = ['title', 'description']
+
+    @action(detail=False, methods=['get'])
+    def suggestions(self, request):
+        """
+        Возвращает список уникальных названий оборудования для автодополнения.
+        Пример: /api/v1/equipment/suggestions/?q=уск
+        """
+        query = request.query_params.get('q', '')
+        if not query or len(query) < 2:
+            return Response([])
+        
+        # Ищем оборудование, название которого начинается с введенных букв
+        # Используем distinct(), чтобы не было дубликатов, если логика сложная
+        equipments = Equipment.objects.filter(
+            title__icontains=query
+        ).values_list('title', flat=True).distinct()[:10] # Берем топ-10
+        
+        return Response(list(equipments))
 
 
 

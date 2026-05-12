@@ -6,6 +6,8 @@ import { AdminDashboard } from './pages/admin/Dashboard';
 import { DirectionsPage } from './pages/public/DirectionsPage';
 import { DirectionPage } from './pages/public/DirectionPage';
 import { EquipmentPage } from './pages/public/EquipmentPage';
+// 👇 ДОБАВЬТЕ ЭТУ СТРОКУ ИМПОРТА
+import { EquipmentDetailPage } from './pages/public/EquipmentDetailPage'; 
 import { PublicationsPage } from './pages/public/PublicationsPage';
 import { TeamPage } from './pages/public/TeamPage';
 import './App.css'
@@ -20,6 +22,8 @@ function App() {
           <Route path="directions" element={<DirectionsPage />} />
           <Route path="directions/:slug" element={<DirectionPage />} />
           <Route path="equipment" element={<EquipmentPage />} />
+          {/* 👇 Убедитесь, что этот роут есть */}
+          <Route path="equipment/:slug" element={<EquipmentDetailPage />} />
           <Route path="publications" element={<PublicationsPage />} />
           <Route path="team" element={<TeamPage />} />
         </Route>
@@ -32,4 +36,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

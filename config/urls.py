@@ -9,6 +9,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from research.views import ResearchDirectionViewSet, ResearchGroupViewSet
 from team.views import EmployeeViewSet
 from equipment.views import EquipmentViewSet
+from equipment.views import EquipmentViewSet, EquipmentCategoryViewSet # Добавил CategoryViewSet
 from publications.views import PublicationViewSet
 
 router = DefaultRouter()
@@ -16,6 +17,7 @@ router.register(r'directions', ResearchDirectionViewSet, basename='direction')
 router.register(r'groups', ResearchGroupViewSet, basename='group')
 router.register(r'employees', EmployeeViewSet, basename='employee')
 router.register(r'equipment', EquipmentViewSet, basename='equipment')
+router.register(r'equipment-categories', EquipmentCategoryViewSet, basename='equipment-category')
 router.register(r'publications', PublicationViewSet, basename='publication')
 
 urlpatterns = [

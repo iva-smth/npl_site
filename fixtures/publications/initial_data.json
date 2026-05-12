@@ -1,0 +1,52 @@
+[
+  {
+    "model": "publications.publicationtype",
+    "pk": 1,
+    "fields": {
+      "title": "Статья в журнале",
+      "slug": "journal-article"
+    }
+  },
+  {
+    "model": "publications.publicationtype",
+    "pk": 2,
+    "fields": {
+      "title": "Патент",
+      "slug": "patent"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 1,
+    "fields": {
+      "title": "Модификация поверхности титана электронным пучком",
+      "slug": "titanium-surface-mod",
+      "authors": "Иванов И.И., Петров П.П.",
+      "abstract": "В статье исследуется влияние...",
+      "pub_type": 1,
+      "year": 2024,
+      "doi": "10.1016/j.nimb.2024.01.001",
+      "link": "https://www.sciencedirect.com/science/article/pii/S0168583X2400001X",
+      "pdf_file": "",
+      "direction": 1,
+      "authors_employees": [1]
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 2,
+    "fields": {
+      "title": "Способ плазменной стерилизации медицинских инструментов",
+      "slug": "plasma-sterilization-patent",
+      "authors": "Петрова А.С., Сидоров П.А.",
+      "abstract": "Изобретение относится к медицине...",
+      "pub_type": 2,
+      "year": 2023,
+      "doi": "",
+      "link": "",
+      "pdf_file": "",
+      "direction": 3,
+      "authors_employees": [2, 3]
+    }
+  }
+]

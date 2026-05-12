@@ -3,12 +3,20 @@ from .models import Equipment, EquipmentCategory
 
 
 class EquipmentCategorySerializer(serializers.ModelSerializer):
-    """Сериализатор для категорий оборудования"""
+    children = serializers.SerializerMethodField() # Или вложенный сериализатор
+
     class Meta:
         model = EquipmentCategory
-        fields = ['id', 'title', 'slug']
+        fields = ['id', 'title', 'slug', 'parent', 'children']
 
-
+    def get_children(self, obj):
+        # Логика получения детей
+        children = EquipmentCategory.objects.filter(parent=obj)
+        if children:
+            # Рекурсивно сериализуем детей
+            return EquipmentCategorySerializer(children, many=True).data
+        return []
+    
 class EquipmentSerializer(serializers.ModelSerializer):
     """Сериализатор для оборудования"""
     category = EquipmentCategorySerializer(read_only=True)

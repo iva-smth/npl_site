@@ -1,0 +1,104 @@
+[
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 1,
+    "fields": {
+      "title": "Ускорители",
+      "slug": "accelerators",
+      "parent": null
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 2,
+    "fields": {
+      "title": "Диагностика",
+      "slug": "diagnostics",
+      "parent": null
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 3,
+    "fields": {
+      "title": "Импульсные ускорители",
+      "slug": "pulsed-accelerators",
+      "parent": 1
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 4,
+    "fields": {
+      "title": "Постоянные ускорители",
+      "slug": "cw-accelerators",
+      "parent": 1
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 5,
+    "fields": {
+      "title": "Осциллографы",
+      "slug": "oscilloscopes",
+      "parent": 2
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 6,
+    "fields": {
+      "title": "Датчики тока",
+      "slug": "current-sensors",
+      "parent": 2
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 1,
+    "fields": {
+      "title": "Ускоритель У-2 (Импульсный)",
+      "slug": "accelerator-u2",
+      "description": "Импульсный ускоритель электронов с энергией до 2 МэВ. Используется для модификации поверхности материалов.",
+      "specs": "Энергия: 2 МэВ\nТок пучка: 10 А\nДлительность импульса: 5 мкс\nЧастота повторения: 50 Гц",
+      "image": "",
+      "category": 3,
+      "direction": 1,
+      "related_equipment": [2],
+      "created_at": "2026-05-12T10:00:00",
+      "updated_at": "2026-05-12T10:00:00"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 2,
+    "fields": {
+      "title": "Осциллограф Tektronix TDS2024C",
+      "slug": "oscilloscope-tek-tds2024c",
+      "description": "Цифровой запоминающий осциллограф для регистрации быстропротекающих процессов в цепях управления ускорителем.",
+      "specs": "Полоса пропускания: 200 МГц\nЧастота дискретизации: 2 ГГц\nКоличество каналов: 4",
+      "image": "",
+      "category": 5,
+      "direction": 1,
+      "related_equipment": [1],
+      "created_at": "2026-05-12T10:00:00",
+      "updated_at": "2026-05-12T10:00:00"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 3,
+    "fields": {
+      "title": "Датчик тока Роговского",
+      "slug": "rogowski-coil",
+      "description": "Гибкий датчик тока для измерения больших импульсных токов без разрыва цепи.",
+      "specs": "Максимальный ток: 100 кА\nЧувствительность: 0.1 В/кА\nШирина полосы: 10 МГц",
+      "image": "",
+      "category": 6,
+      "direction": 1,
+      "related_equipment": [],
+      "created_at": "2026-05-12T10:00:00",
+      "updated_at": "2026-05-12T10:00:00"
+    }
+  }
+]

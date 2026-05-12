@@ -31,6 +31,14 @@ export interface Employee {
   group: number | null;
 }
 
+export interface EquipmentCategory {
+  id: number;
+  title: string;
+  slug: string;
+  parent: number | null;
+  children?: EquipmentCategory[]; // Рекурсивная структура
+}
+
 export interface Equipment {
   id: number;
   title: string;
@@ -40,12 +48,6 @@ export interface Equipment {
   image_url: string | null;
   category: EquipmentCategory | null;
   direction: number | null;
-}
-
-export interface EquipmentCategory {
-  id: number;
-  title: string;
-  slug: string;
 }
 
 export interface Publication {

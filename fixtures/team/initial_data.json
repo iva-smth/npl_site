@@ -1,0 +1,61 @@
+[
+  {
+    "model": "team.position",
+    "pk": 1,
+    "fields": {
+      "title": "Профессор",
+      "order": 1
+    }
+  },
+  {
+    "model": "team.employee",
+    "pk": 1,
+    "fields": {
+      "full_name": "Иванов Иван Иванович",
+      "position": "head",
+      "custom_position": null,
+      "photo": "",
+      "bio": "Доктор физико-математических наук, руководитель лаборатории.",
+      "email": "ivanov@tpu.ru",
+      "phone": "+79001234567",
+      "show_email": true,
+      "show_phone": false,
+      "direction": 1,
+      "group": 1
+    }
+  },
+  {
+    "model": "team.employee",
+    "pk": 2,
+    "fields": {
+      "full_name": "Петрова Анна Сергеевна",
+      "position": "senior_researcher",
+      "custom_position": 1,
+      "photo": "",
+      "bio": "Кандидат технических наук, специалист по плазменной диагностике.",
+      "email": "petrova@tpu.ru",
+      "phone": "+79007654321",
+      "show_email": true,
+      "show_phone": true,
+      "direction": 3,
+      "group": 2
+    }
+  },
+  {
+    "model": "team.employee",
+    "pk": 3,
+    "fields": {
+      "full_name": "Сидоров Петр Алексеевич",
+      "position": "student",
+      "custom_position": null,
+      "photo": "",
+      "bio": "Аспирант, изучает импульсные разряды.",
+      "email": "sidorov@tpu.ru",
+      "phone": "",
+      "show_email": false,
+      "show_phone": false,
+      "direction": 2,
+      "group": null
+    }
+  }
+]
