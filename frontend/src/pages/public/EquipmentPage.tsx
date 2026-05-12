@@ -1,14 +1,29 @@
 // src/pages/public/EquipmentPage.tsx
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { apiClient } from '../../api/client'; // Используем единый клиент
+import { apiClient } from '../../api/client';
 import type { Equipment, EquipmentCategory } from '../../types';
-import type { PaginatedResponse } from '../../types/api';
 
-// Вспомогательный компонент для отображения дерева категорий
+// Вспомогательная функция для сбора всех ID категории и её детей
+const getAllCategoryIds = (category: EquipmentCategory | null, allCategories: EquipmentCategory[]): number[] => {
+  if (!category) return [];
+  
+  const ids = [category.id];
+  
+  // Ищем детей в плоском списке (так как API может отдавать дерево, но нам удобно искать по ссылке)
+  // Но так как у нас рекурсивная структура в state, можно искать прямо в children
+  if (category.children && category.children.length > 0) {
+    category.children.forEach(child => {
+      ids.push(...getAllCategoryIds(child, allCategories));
+    });
+  }
+  
+  return ids;
+};
+
 interface CategoryTreeProps {
   categories: EquipmentCategory[];
-  onSelect: (id: number) => void;
+  onSelect: (id: number | null) => void; // null означает "Все оборудование"
   selectedId: number | null;
 }
 
@@ -21,13 +36,13 @@ function CategoryTree({ categories, onSelect, selectedId }: CategoryTreeProps) {
         <li key={cat.id}>
           <button
             onClick={() => onSelect(cat.id)}
-            className={`text-left w-full py-1 px-2 rounded hover:bg-gray-100 text-sm ${
+            className={`text-left w-full py-1 px-2 rounded hover:bg-gray-100 text-sm transition-colors ${
               selectedId === cat.id ? 'bg-primary text-white font-bold' : 'text-gray-700'
             }`}
           >
             {cat.title}
           </button>
-          {/* Рекурсивный вызов для дочерних категорий, если они есть */}
+          {/* Рекурсивный вызов для дочерних категорий */}
           {cat.children && cat.children.length > 0 && (
             <CategoryTree 
               categories={cat.children} 
@@ -46,20 +61,18 @@ export function EquipmentPage() {
   const [categories, setCategories] = useState<EquipmentCategory[]>([]);
   
   const [loading, setLoading] = useState(true);
+  // null здесь означает режим "Показать всё оборудование"
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   // 1. Загружаем корневые категории при монтировании
   useEffect(() => {
     setLoading(true);
-    // Запрашиваем только корневые категории (parent=null) или все, если бэкенд отдает дерево
-    // В вашем случае equipmentApi.getCategories() должен отдавать массив корней
     apiClient.get<EquipmentCategory[]>('/equipment-categories/')
       .then((response) => {
         if (Array.isArray(response.data)) {
           setCategories(response.data);
         } else if (response.data && typeof response.data === 'object' && 'results' in response.data) {
-           // На случай, если вдруг включилась пагинация для категорий
            setCategories((response.data as any).results);
         }
       })
@@ -69,17 +82,49 @@ export function EquipmentPage() {
 
   // 2. Загружаем оборудование при изменении фильтров
   useEffect(() => {
-    if (!selectedCategoryId && !searchQuery) {
-        // Если ничего не выбрано, можно либо ничего не грузить, либо грузить всё
-        // Для примера загрузим всё, если нет фильтров, или очистим список
-        setEquipmentList([]);
-        return;
-    }
-
     setLoading(true);
-    const params: any = {};
-    if (selectedCategoryId) params.category = selectedCategoryId;
-    if (searchQuery) params.search = searchQuery;
+    
+    let params: any = {};
+    
+    if (searchQuery) {
+      params.search = searchQuery;
+    } else if (selectedCategoryId !== undefined) {
+      // Если выбрана категория (не null), собираем все ID (родитель + дети)
+      if (selectedCategoryId !== null) {
+        // Находим объект категории в дереве, чтобы получить детей
+        // Для простоты поиска в рекурсивном дереве можно использовать небольшую вспомогательную функцию поиска,
+        // но так как мы храним дерево в state, мы можем передать всё дерево в getAllCategoryIds, 
+        // если найдем корень. 
+        
+        // Упрощенный вариант: так как API отдает дерево, нам нужно найти категорию по ID в этом дереве.
+        // Но проще сделать так: если выбран ID, мы просто отправляем его. 
+        // А БЭкенд должен сам понять, что это родитель? Нет, DRF filter так не умеет из коробки без кастомного фильтра.
+        
+        // ПОЭТОМУ: Мы используем кастомный параметр category__in, который мы добавили в views.py
+        // Нам нужно собрать список ID.
+        
+        // Функция поиска категории в дереве по ID
+        const findCategoryById = (cats: EquipmentCategory[], id: number): EquipmentCategory | null => {
+          for (const cat of cats) {
+            if (cat.id === id) return cat;
+            if (cat.children) {
+              const found = findCategoryById(cat.children, id);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+
+        const targetCat = findCategoryById(categories, selectedCategoryId);
+        if (targetCat) {
+          const allIds = getAllCategoryIds(targetCat, categories);
+          params.category__in = allIds.join(','); // Передаем как строку "1,2,3"
+        } else {
+          params.category = selectedCategoryId; // Фолбэк, если вдруг не нашли в дереве (например, баг)
+        }
+      }
+      // Если selectedCategoryId === null, то params остается пустым -> загружаем ВСЕ оборудование
+    }
 
     apiClient.get<{ results: Equipment[] }>('/equipment/', { params })
       .then((response) => {
@@ -91,16 +136,16 @@ export function EquipmentPage() {
         setEquipmentList([]);
       })
       .finally(() => setLoading(false));
-  }, [selectedCategoryId, searchQuery]);
+  }, [selectedCategoryId, searchQuery, categories]); // Добавил categories в зависимости, т.к. используем его для поиска детей
 
-  const handleCategorySelect = (id: number) => {
-    setSelectedCategoryId(id === selectedCategoryId ? null : id); // Toggle selection
+  const handleCategorySelect = (id: number | null) => {
+    setSelectedCategoryId(id);
     setSearchQuery(''); // Сброс поиска при выборе категории
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setSelectedCategoryId(null); // Сброс категории при поиске
+    setSelectedCategoryId(null); // При поиске сбрасываем фильтр категории, чтобы искать везде
   };
 
   return (
@@ -110,9 +155,23 @@ export function EquipmentPage() {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Левая колонка: Дерево категорий */}
         <div className="w-full md:w-1/4 bg-white p-4 rounded-lg shadow h-fit">
-          <h2 className="font-bold mb-4 text-lg">Категории</h2>
+          <div className="mb-4">
+             <button
+                onClick={() => handleCategorySelect(null)}
+                className={`w-full text-left py-2 px-3 rounded font-bold transition-colors ${
+                  selectedCategoryId === null 
+                    ? 'bg-primary text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+             >
+               Оборудование
+             </button>
+          </div>
+          
+          <h3 className="font-semibold text-gray-500 text-xs uppercase tracking-wider mb-2 pl-3">Категории</h3>
+          
           {loading && categories.length === 0 ? (
-            <p className="text-gray-500 text-sm">Загрузка...</p>
+            <p className="text-gray-500 text-sm pl-3">Загрузка...</p>
           ) : (
             <CategoryTree 
               categories={categories} 
@@ -179,9 +238,9 @@ export function EquipmentPage() {
                 ))
               ) : (
                 <div className="col-span-full text-center text-gray-500 py-10">
-                  {selectedCategoryId 
-                    ? "В этой категории пока нет оборудования." 
-                    : "Введите запрос для поиска или выберите категорию."}
+                  {selectedCategoryId !== null
+                    ? "В этой категории и её подкатегориях пока нет оборудования." 
+                    : "Оборудование не найдено. Попробуйте изменить запрос."}
                 </div>
               )}
             </div>
