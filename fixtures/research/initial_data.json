@@ -4,10 +4,12 @@
     "pk": 1,
     "fields": {
       "title": "Импульсно-пучковые технологии",
-      "slug": "impulse-beam",
-      "description": "Разработка источников мощных импульсных пучков электронов и ионов для модификации материалов.",
-      "image": "",
-      "order": 1
+      "slug": "impulse-beam-technologies",
+      "description": "Исследование и разработка импульсных источников пучков заряженных частиц для различных применений",
+      "image": "directions/impulse_beam.jpg",
+      "order": 1,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
     }
   },
   {
@@ -15,10 +17,12 @@
     "pk": 2,
     "fields": {
       "title": "Электроразрядные технологии",
-      "slug": "electric-discharge",
-      "description": "Исследование газовых разрядов и их применение в плазмохимии и очистке поверхностей.",
-      "image": "",
-      "order": 2
+      "slug": "electric-discharge-technologies",
+      "description": "Разработка электроразрядных систем для обработки материалов и генерации плазмы",
+      "image": "directions/electric_discharge.jpg",
+      "order": 2,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
     }
   },
   {
@@ -26,10 +30,12 @@
     "pk": 3,
     "fields": {
       "title": "Плазменные технологии",
-      "slug": "plasma-tech",
-      "description": "Низкотемпературная плазма для медицины, сельского хозяйства и нанотехнологий.",
-      "image": "",
-      "order": 3
+      "slug": "plasma-technologies",
+      "description": "Исследование низкотемпературной плазмы и её применение в промышленности",
+      "image": "directions/plasma.jpg",
+      "order": 3,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
     }
   },
   {
@@ -37,19 +43,65 @@
     "pk": 1,
     "fields": {
       "direction": 1,
-      "title": "Группа сильноточных пучков",
-      "slug": "high-current-beams",
-      "description": "Разработка ускорителей на основе сильноточных электронных пучков."
+      "title": "Группа импульсных ускорителей",
+      "slug": "impulse-accelerators",
+      "description": "Разработка высоковольтных импульсных ускорителей электронов",
+      "created_at": "2026-01-01T10:00:00Z"
     }
   },
   {
     "model": "research.researchgroup",
     "pk": 2,
     "fields": {
+      "direction": 1,
+      "title": "Группа ионных источников",
+      "slug": "ion-sources",
+      "description": "Создание источников ионов для пучковых технологий",
+      "created_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "research.researchgroup",
+    "pk": 3,
+    "fields": {
+      "direction": 2,
+      "title": "Группа искровых разрядов",
+      "slug": "spark-discharge",
+      "description": "Исследование искровых разрядов в газах и жидкостях",
+      "created_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "research.researchgroup",
+    "pk": 4,
+    "fields": {
+      "direction": 2,
+      "title": "Группа дуговых разрядов",
+      "slug": "arc-discharge",
+      "description": "Разработка дуговых источников плазмы",
+      "created_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "research.researchgroup",
+    "pk": 5,
+    "fields": {
       "direction": 3,
-      "title": "Группа плазменной медицины",
-      "slug": "plasma-medicine",
-      "description": "Применение холодной плазмы для стерилизации и заживления ран."
+      "title": "Группа ВЧ плазмы",
+      "slug": "rf-plasma",
+      "description": "Генерация и применение ВЧ плазмы",
+      "created_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "research.researchgroup",
+    "pk": 6,
+    "fields": {
+      "direction": 3,
+      "title": "Группа микроволновой плазмы",
+      "slug": "microwave-plasma",
+      "description": "СВЧ генераторы плазмы и их применение",
+      "created_at": "2026-01-01T10:00:00Z"
     }
   }
 ]
