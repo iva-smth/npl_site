@@ -11,42 +11,92 @@
     "model": "publications.publicationtype",
     "pk": 2,
     "fields": {
+      "title": "Доклад на конференции",
+      "slug": "conference-paper"
+    }
+  },
+  {
+    "model": "publications.publicationtype",
+    "pk": 3,
+    "fields": {
       "title": "Патент",
       "slug": "patent"
+    }
+  },
+  {
+    "model": "publications.publicationtype",
+    "pk": 4,
+    "fields": {
+      "title": "Отчет",
+      "slug": "report"
     }
   },
   {
     "model": "publications.publication",
     "pk": 1,
     "fields": {
-      "title": "Модификация поверхности титана электронным пучком",
-      "slug": "titanium-surface-mod",
-      "authors": "Иванов И.И., Петров П.П.",
-      "abstract": "В статье исследуется влияние...",
+      "title": "High-power impulse electron beam generation",
+      "slug": "high-power-impulse-electron-beam",
+      "authors": "Ivanov A.A., Petrov V.S., Sidorov K.M.",
+      "abstract": "Investigation of high-power impulse electron beam generation using plasma cathode",
       "pub_type": 1,
-      "year": 2024,
-      "doi": "10.1016/j.nimb.2024.01.001",
-      "link": "https://www.sciencedirect.com/science/article/pii/S0168583X2400001X",
-      "pdf_file": "",
+      "year": 2025,
+      "doi": "10.1016/j.nima.2025.01.001",
+      "link": "https://doi.org/10.1016/j.nima.2025.01.001",
+      "pdf_file": "publications/ivanov2025.pdf",
       "direction": 1,
-      "authors_employees": [1]
+      "created_at": "2026-01-01T10:00:00Z"
     }
   },
   {
     "model": "publications.publication",
     "pk": 2,
     "fields": {
-      "title": "Способ плазменной стерилизации медицинских инструментов",
-      "slug": "plasma-sterilization-patent",
-      "authors": "Петрова А.С., Сидоров П.А.",
-      "abstract": "Изобретение относится к медицине...",
+      "title": "Plasma diagnostics using optical emission spectroscopy",
+      "slug": "plasma-diagnostics-spectroscopy",
+      "authors": "Petrov V.S., Kuznetsova E.A.",
+      "abstract": "Application of optical emission spectroscopy for plasma diagnostics in discharge systems",
+      "pub_type": 1,
+      "year": 2025,
+      "doi": "10.1088/1361-6595/ab1234",
+      "link": "https://doi.org/10.1088/1361-6595/ab1234",
+      "pdf_file": "publications/petrov2025.pdf",
+      "direction": 3,
+      "created_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 3,
+    "fields": {
+      "title": "Spark discharge in liquids for nanoparticle synthesis",
+      "slug": "spark-discharge-nanoparticles",
+      "authors": "Sidorov K.M., Ivanov A.B.",
+      "abstract": "Novel method of nanoparticle synthesis using spark discharge in liquids",
       "pub_type": 2,
-      "year": 2023,
+      "year": 2024,
+      "doi": "",
+      "link": "https://conference.example.com/2024/papers/123",
+      "pdf_file": "publications/sidorov2024.pdf",
+      "direction": 2,
+      "created_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 4,
+    "fields": {
+      "title": "Устройство для генерации импульсных пучков электронов",
+      "slug": "patent-electron-beam-device",
+      "authors": "Ivanov A.B., Petrov V.S.",
+      "abstract": "Патент на устройство для генерации мощных импульсных пучков электронов",
+      "pub_type": 3,
+      "year": 2025,
       "doi": "",
       "link": "",
-      "pdf_file": "",
-      "direction": 3,
-      "authors_employees": [2, 3]
+      "pdf_file": "publications/patent2025.pdf",
+      "direction": 1,
+      "created_at": "2026-01-01T10:00:00Z"
     }
   }
 ]

@@ -3,8 +3,8 @@
     "model": "equipment.equipmentcategory",
     "pk": 1,
     "fields": {
-      "title": "Ускорители",
-      "slug": "accelerators",
+      "title": "Источники питания",
+      "slug": "power-sources",
       "parent": null
     }
   },
@@ -12,17 +12,17 @@
     "model": "equipment.equipmentcategory",
     "pk": 2,
     "fields": {
-      "title": "Диагностика",
-      "slug": "diagnostics",
-      "parent": null
+      "title": "Высоковольтные источники",
+      "slug": "high-voltage-sources",
+      "parent": 1
     }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 3,
     "fields": {
-      "title": "Импульсные ускорители",
-      "slug": "pulsed-accelerators",
+      "title": "Импульсные источники",
+      "slug": "pulse-sources",
       "parent": 1
     }
   },
@@ -30,9 +30,9 @@
     "model": "equipment.equipmentcategory",
     "pk": 4,
     "fields": {
-      "title": "Постоянные ускорители",
-      "slug": "cw-accelerators",
-      "parent": 1
+      "title": "Диагностическое оборудование",
+      "slug": "diagnostic-equipment",
+      "parent": null
     }
   },
   {
@@ -41,64 +41,232 @@
     "fields": {
       "title": "Осциллографы",
       "slug": "oscilloscopes",
-      "parent": 2
+      "parent": 4
     }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 6,
     "fields": {
-      "title": "Датчики тока",
-      "slug": "current-sensors",
-      "parent": 2
+      "title": "Спектрометры",
+      "slug": "spectrometers",
+      "parent": 4
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 7,
+    "fields": {
+      "title": "Вакуумное оборудование",
+      "slug": "vacuum-equipment",
+      "parent": null
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 8,
+    "fields": {
+      "title": "Насосы",
+      "slug": "pumps",
+      "parent": 7
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 9,
+    "fields": {
+      "title": "Камеры",
+      "slug": "chambers",
+      "parent": 7
+    }
+  },
+  {
+    "model": "equipment.equipmentcategory",
+    "pk": 10,
+    "fields": {
+      "title": "Генераторы плазмы",
+      "slug": "plasma-generators",
+      "parent": null
     }
   },
   {
     "model": "equipment.equipment",
     "pk": 1,
     "fields": {
-      "title": "Ускоритель У-2 (Импульсный)",
-      "slug": "accelerator-u2",
-      "description": "Импульсный ускоритель электронов с энергией до 2 МэВ. Используется для модификации поверхности материалов.",
-      "specs": "Энергия: 2 МэВ\nТок пучка: 10 А\nДлительность импульса: 5 мкс\nЧастота повторения: 50 Гц",
-      "image": "",
+      "title": "Импульсный ускоритель электронов ИУЭ-1",
+      "slug": "iue-1-accelerator",
+      "description": "Высоковольтный импульсный ускоритель электронов с энергией до 500 кэВ и током пучка до 100 А. Используется для исследований в области импульсно-пучковых технологий.",
+      "specs": "Энергия электронов: до 500 кэВ\nТок пучка: до 100 А\nДлительность импульса: 10-100 нс\nЧастота повторения: до 100 Гц",
+      "image": "equipment/iue1.jpg",
       "category": 3,
       "direction": 1,
-      "related_equipment": [2],
-      "created_at": "2026-05-12T10:00:00",
-      "updated_at": "2026-05-12T10:00:00"
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
     }
   },
   {
     "model": "equipment.equipment",
     "pk": 2,
     "fields": {
-      "title": "Осциллограф Tektronix TDS2024C",
-      "slug": "oscilloscope-tek-tds2024c",
-      "description": "Цифровой запоминающий осциллограф для регистрации быстропротекающих процессов в цепях управления ускорителем.",
-      "specs": "Полоса пропускания: 200 МГц\nЧастота дискретизации: 2 ГГц\nКоличество каналов: 4",
-      "image": "",
-      "category": 5,
+      "title": "Генератор высоковольтных импульсов ГВИ-500",
+      "slug": "gvi-500-generator",
+      "description": "Генератор высоковольтных наносекундных импульсов для питания разрядных систем",
+      "specs": "Выходное напряжение: до 500 кВ\nДлительность импульса: 10-500 нс\nЭнергия импульса: до 100 Дж",
+      "image": "equipment/gvi500.jpg",
+      "category": 3,
       "direction": 1,
-      "related_equipment": [1],
-      "created_at": "2026-05-12T10:00:00",
-      "updated_at": "2026-05-12T10:00:00"
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
     }
   },
   {
     "model": "equipment.equipment",
     "pk": 3,
     "fields": {
-      "title": "Датчик тока Роговского",
-      "slug": "rogowski-coil",
-      "description": "Гибкий датчик тока для измерения больших импульсных токов без разрыва цепи.",
-      "specs": "Максимальный ток: 100 кА\nЧувствительность: 0.1 В/кА\nШирина полосы: 10 МГц",
-      "image": "",
-      "category": 6,
+      "title": "Источник ионов с дуговым разрядом",
+      "slug": "arc-ion-source",
+      "description": "Источник ионов на основе дугового разряда для получения пучков заряженных частиц",
+      "specs": "Ток ионного пучка: до 10 А\nЭнергия ионов: 1-50 кэВ\nТип ионов: Ar+, N+, O+",
+      "image": "equipment/ion_source.jpg",
+      "category": 2,
       "direction": 1,
-      "related_equipment": [],
-      "created_at": "2026-05-12T10:00:00",
-      "updated_at": "2026-05-12T10:00:00"
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 4,
+    "fields": {
+      "title": "Цифровой осциллограф Tektronix DPO70000",
+      "slug": "tektronix-dpo70000",
+      "description": "Высокоскоростной цифровой осциллограф для регистрации быстрых импульсных процессов",
+      "specs": "Полоса пропускания: 20 ГГц\nЧастота дискретизации: 100 Гвыб/с\nКоличество каналов: 4",
+      "image": "equipment/oscilloscope.jpg",
+      "category": 5,
+      "direction": null,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 5,
+    "fields": {
+      "title": "Осциллограф LeCroy WaveRunner",
+      "slug": "lecroy-waverunner",
+      "description": "Цифровой осциллограф среднего класса для общих измерений",
+      "specs": "Полоса пропускания: 1 ГГц\nЧастота дискретизации: 10 Гвыб/с\nКоличество каналов: 4",
+      "image": "equipment/lecroy.jpg",
+      "category": 5,
+      "direction": null,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 6,
+    "fields": {
+      "title": "Оптический спектрометр Ocean Optics HR4000",
+      "slug": "ocean-optics-hr4000",
+      "description": "Спектрометр высокого разрешения для спектрального анализа плазмы",
+      "specs": "Диапазон длин волн: 200-1100 нм\nРазрешение: 0.75 нм\nТип детектора: CCD",
+      "image": "equipment/spectrometer.jpg",
+      "category": 6,
+      "direction": 3,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 7,
+    "fields": {
+      "title": "Вакуумный насос турбомолекулярный Pfeiffer TMH 261",
+      "slug": "pfeiffer-tmh261",
+      "description": "Турбомолекулярный насос для создания высокого вакуума",
+      "specs": "Быстрота откачки: 250 л/с\nПредельное давление: 1×10⁻¹⁰ мбар\nТип подшипников: магнитные",
+      "image": "equipment/pfeiffer_pump.jpg",
+      "category": 8,
+      "direction": null,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 8,
+    "fields": {
+      "title": "Форвакуумный насос Edwards nXDS15i",
+      "slug": "edwards-nxds15i",
+      "description": "Сухой спиральный форвакуумный насос",
+      "specs": "Быстрота откачки: 15 м³/ч\nПредельное давление: 0.0075 мбар\nТип: безмасляный",
+      "image": "equipment/edwards_pump.jpg",
+      "category": 8,
+      "direction": null,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 9,
+    "fields": {
+      "title": "Вакуумная камера ВК-500",
+      "slug": "vk-500-chamber",
+      "description": "Вакуумная камера для плазменных исследований",
+      "specs": "Объем: 500 л\nМатериал: нержавеющая сталь\nФланцы: CF, KF\nРабочее давление: 10⁻⁶ мбар",
+      "image": "equipment/vacuum_chamber.jpg",
+      "category": 9,
+      "direction": 3,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 10,
+    "fields": {
+      "title": "ВЧ генератор плазмы Seren R3001",
+      "slug": "seren-r3001",
+      "description": "Радиочастотный генератор для создания ВЧ плазмы",
+      "specs": "Частота: 13.56 МГц\nМощность: до 3000 Вт\nСогласование: автоматическое",
+      "image": "equipment/rf_generator.jpg",
+      "category": 10,
+      "direction": 3,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 11,
+    "fields": {
+      "title": "СВЧ генератор плазмы Sairem GMP 20 K",
+      "slug": "sairem-gmp20k",
+      "description": "Микроволновый генератор плазмы мощностью 2 кВт",
+      "specs": "Частота: 2.45 ГГц\nМощность: до 2000 Вт\nТип: магнетронный",
+      "image": "equipment/microwave_generator.jpg",
+      "category": 10,
+      "direction": 3,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 12,
+    "fields": {
+      "title": "Установка искрового разряда в жидкости",
+      "slug": "spark-discharge-liquid",
+      "description": "Экспериментальная установка для исследования искровых разрядов в жидкостях",
+      "specs": "Напряжение: до 100 кВ\nЭнергия: до 50 Дж\nОбъем камеры: 10 л",
+      "image": "equipment/spark_liquid.jpg",
+      "category": 2,
+      "direction": 2,
+      "created_at": "2026-01-01T10:00:00Z",
+      "updated_at": "2026-01-01T10:00:00Z"
     }
   }
 ]
