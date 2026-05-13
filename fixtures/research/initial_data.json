@@ -1,70 +1,55 @@
 [
   {
-    "model": "equipment.equipmentcategory",
+    "model": "research.researchdirection",
     "pk": 1,
     "fields": {
-      "title": "Диагностическое оборудование",
-      "slug": "diagnostic-equipment",
-      "parent": null
+      "title": "Импульсно-пучковые технологии",
+      "slug": "impulse-beam",
+      "description": "Разработка источников мощных импульсных пучков электронов и ионов для модификации материалов.",
+      "image": "",
+      "order": 1
     }
   },
   {
-    "model": "equipment.equipmentcategory",
+    "model": "research.researchdirection",
     "pk": 2,
     "fields": {
-      "title": "Осциллографы",
-      "slug": "oscilloscopes",
-      "parent": 1
+      "title": "Электроразрядные технологии",
+      "slug": "electric-discharge",
+      "description": "Исследование газовых разрядов и их применение в плазмохимии и очистке поверхностей.",
+      "image": "",
+      "order": 2
     }
   },
   {
-    "model": "equipment.equipmentcategory",
+    "model": "research.researchdirection",
     "pk": 3,
     "fields": {
-      "title": "Цифровые осциллографы",
-      "slug": "digital-oscilloscopes",
-      "parent": 2
+      "title": "Плазменные технологии",
+      "slug": "plasma-tech",
+      "description": "Низкотемпературная плазма для медицины, сельского хозяйства и нанотехнологий.",
+      "image": "",
+      "order": 3
     }
   },
   {
-    "model": "equipment.equipmentcategory",
-    "pk": 4,
-    "fields": {
-      "title": "Источники питания",
-      "slug": "power-supplies",
-      "parent": null
-    }
-  },
-  {
-    "model": "equipment.equipment",
+    "model": "research.researchgroup",
     "pk": 1,
     "fields": {
-      "title": "Осциллограф Tektronix TDS2024C",
-      "slug": "tektronix-tds2024c",
-      "description": "Четырехканальный цифровой запоминающий осциллограф с полосой пропускания 200 МГц.",
-      "specs": "Полоса пропускания: 200 МГц\nЧастота дискретизации: 2 ГГС/с\nПамять: 2.5 кт/канал",
-      "image": "",
-      "category": 3,
       "direction": 1,
-      "related_equipment": [],
-      "created_at": "2026-05-12T10:00:00",
-      "updated_at": "2026-05-12T10:00:00"
+      "title": "Группа сильноточных пучков",
+      "slug": "high-current-beams",
+      "description": "Разработка ускорителей на основе сильноточных электронных пучков."
     }
   },
   {
-    "model": "equipment.equipment",
+    "model": "research.researchgroup",
     "pk": 2,
     "fields": {
-      "title": "Источник питания Keysight E3631A",
-      "slug": "keysight-e3631a",
-      "description": "Трехвыходной источник питания постоянного тока мощностью 80 Вт.",
-      "specs": "Выходы: +6V/5A, +25V/1A, -25V/1A\nМощность: 80 Вт\nИнтерфейс: GPIB, RS-232",
-      "image": "",
-      "category": 4,
-      "direction": 1,
-      "related_equipment": [],
-      "created_at": "2026-05-12T10:00:00",
-      "updated_at": "2026-05-12T10:00:00"
+      "direction": 3,
+      "title": "Группа плазменной медицины",
+      "slug": "plasma-medicine",
+      "description": "Применение холодной плазмы для стерилизации и заживления ран."
     }
   }
 ]
