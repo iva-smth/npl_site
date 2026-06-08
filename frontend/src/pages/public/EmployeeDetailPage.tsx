@@ -84,7 +84,7 @@ export function EmployeeDetailPage() {
           {/* Карусель публикаций */}
           <PublicationCarousel 
             publications={employee.recent_publications} 
-            employeeId={employee.id} 
+            employeeName={employee.full_name} 
           />
         </main>
       </div>

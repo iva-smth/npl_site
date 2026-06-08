@@ -3,12 +3,14 @@ import type { PublicationList } from '../types';
 
 interface Props {
   publications: PublicationList[];
-  employeeId: number;
+  employeeName: string;
 }
 
-export function PublicationCarousel({ publications, employeeId }: Props) {
+export function PublicationCarousel({ publications, employeeName }: Props) {
   if (!publications || publications.length === 0) return null;
   
+  const searchQuery = encodeURIComponent(employeeName);
+
   const getFullAuthors = (pub: PublicationList) => {
     const employeeNames = pub.authors_employees.map(emp => emp.full_name);
     
@@ -41,9 +43,9 @@ export function PublicationCarousel({ publications, employeeId }: Props) {
         ))}
         
         {/* Кнопка "Все публикации" в конце списка */}
-        <Link 
-          to={`/publications?author=${employeeId}`} 
-          className="snap-start shrink-0 w-72 flex items-center justify-center bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors"
+        <Link
+          to={`/publications?search=${searchQuery}`}
+          className="snap-start shrink-0 w-72 flex items-center justify-center bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors font-medium"
         >
           Все публикации сотрудника →
         </Link>
