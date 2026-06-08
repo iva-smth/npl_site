@@ -20,9 +20,12 @@ export function PublicationDetailPage() {
   if (loading) return <div className="container mx-auto px-4 py-8">Загрузка...</div>;
   if (!pub) return <div className="container mx-auto px-4 py-8 text-center">Публикация не найдена</div>;
 
+  // Разделяем авторов для детального просмотра
+  const hasEmployees = pub.authors_employees.length > 0;
+  const hasExternal = !!pub.external_authors && pub.external_authors.trim() !== '';
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Хлебные крошки */}
       <nav className="text-sm text-gray-500 mb-8 flex items-center gap-2">
         <Link to="/" className="hover:text-primary">Главная</Link>
         <span>/</span>
@@ -47,57 +50,55 @@ export function PublicationDetailPage() {
           <p className="whitespace-pre-line">{pub.abstract || 'Аннотация отсутствует.'}</p>
         </div>
 
-        <div className="border-t border-gray-100 pt-6 mt-8">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Авторы</h3>
-          <div className="flex flex-wrap gap-2">
-            {pub.authors_employees.length > 0 ? (
-              pub.authors_employees.map(emp => (
-                <Link 
-                  key={emp.id} 
-                  to={`/team/${emp.id}`}
-                  className="px-3 py-1.5 bg-gray-50 hover:bg-blue-50 text-gray-700 hover:text-blue-700 rounded-lg text-sm transition-colors border border-gray-200"
-                >
-                  {emp.full_name}
-                </Link>
-              ))
-            ) : (
-              <p className="text-gray-500 italic">{pub.authors}</p>
-            )}
+        {/* Блок авторов */}
+        {(hasEmployees || hasExternal) && (
+          <div className="border-t border-gray-100 pt-6 mt-8">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Авторы</h3>
+            
+            <div className="flex flex-wrap gap-y-3 gap-x-4">
+              {/* 1. Сотрудники лаборатории (с кнопками) */}
+              {hasEmployees && (
+                <div className="flex flex-wrap gap-2 w-full mb-2">
+                  {pub.authors_employees.map(emp => (
+                    <Link
+                      key={emp.id}
+                      to={`/team/${emp.id}`}
+                      className="inline-flex items-center px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg text-sm font-medium transition-colors border border-blue-200"
+                    >
+                      {emp.full_name}
+                      <span className="ml-1 text-xs opacity-70">(НПЛ ИПЭПТ)</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* 2. Внешние авторы (просто текст) */}
+              {hasExternal && (
+                <div className="text-gray-700 text-base w-full">
+                  <span className="font-semibold text-gray-900 mr-2">Соавторы:</span>
+                  {pub.external_authors}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mt-8 flex flex-wrap gap-4">
           {pub.doi && (
-            <a 
-              href={`https://doi.org/${pub.doi}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            <a href={`https://doi.org/${pub.doi}`} target="_blank" rel="noopener noreferrer"
+               className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">
               Перейти по DOI
             </a>
           )}
-          
           {pub.link && (
-            <a 
-              href={pub.link} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-blue-50 transition-colors"
-            >
+            <a href={pub.link} target="_blank" rel="noopener noreferrer"
+               className="inline-flex items-center gap-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-blue-50 transition-colors">
               Внешняя ссылка
             </a>
           )}
-
           {pub.pdf_url && (
-            <a 
-              href={pub.pdf_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-red-200 text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            <a href={pub.pdf_url} target="_blank" rel="noopener noreferrer"
+               className="inline-flex items-center gap-2 px-4 py-2 border border-red-200 text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
               Скачать PDF
             </a>
           )}

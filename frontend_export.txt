@@ -1,9 +1,9 @@
 ================================================================================
 ФРОНТЕНД ЭКСПОРТ
 ================================================================================
-Дата экспорта: 2026-06-08 23:28:09
+Дата экспорта: 2026-06-09 00:11:11
 Всего файлов: 45
-Общий размер: 89.93 KB
+Общий размер: 90.84 KB
 ================================================================================
 
 📋 ОГЛАВЛЕНИЕ
@@ -888,7 +888,7 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
 
 ================================================================================
 📄 ФАЙЛ: src\components\PublicationCard.tsx
-📊 Размер: 1794 байт
+📊 Размер: 2191 байт
 ================================================================================
 
 import { Link } from 'react-router-dom';
@@ -899,14 +899,19 @@ interface Props {
 }
 
 export function PublicationCard({ pub }: Props) {
+  // Формируем полный список авторов для отображения в карточке
+  const employeeNames = pub.authors_employees.map(emp => emp.full_name);
+  const externalAuthors = pub.external_authors ? pub.external_authors.split(',').map(s => s.trim()) : [];
+  
+  // Объединяем списки. Сначала сотрудники, потом внешние (или наоборот, по желанию)
+  const allAuthors = [...employeeNames, ...externalAuthors].join(', ');
+
   return (
     <Link
       to={`/publications/${pub.slug}`}
       className="group flex flex-col sm:flex-row gap-6 p-6 bg-white rounded-xl border border-gray-100 hover:shadow-md transition-all w-full items-start"
     >
-      {/* Правая часть: Контент */}
       <div className="flex-grow">
-        {/* Заголовок с годом */}
         <h3 className="text-lg font-bold text-primary mb-2 group-hover:text-blue-700 transition-colors line-clamp-2 flex items-baseline gap-2 flex-wrap">
           <span>{pub.title}</span>
           <span className="text-sm font-normal text-gray-400 shrink-0 whitespace-nowrap">
@@ -914,11 +919,13 @@ export function PublicationCard({ pub }: Props) {
           </span>
         </h3>
         
-        <p className="text-sm text-gray-600 mb-3 line-clamp-1 italic">
-          {pub.authors}
-        </p>
+        {/* Отображаем всех авторов */}
+        {allAuthors && (
+          <p className="text-sm text-gray-600 mb-3 line-clamp-1 italic">
+            {allAuthors}
+          </p>
+        )}
 
-        {/* DOI или другие метаданные */}
         {pub.doi && (
           <div className="flex items-center gap-2 text-xs text-gray-400 font-mono">
             <span>DOI:</span>
@@ -926,8 +933,7 @@ export function PublicationCard({ pub }: Props) {
           </div>
         )}
       </div>
-
-      {/* Индикатор перехода (стрелка) */}
+      
       <div className="hidden sm:flex items-center justify-center w-10 h-10 shrink-0 text-gray-300 group-hover:text-primary transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -939,7 +945,7 @@ export function PublicationCard({ pub }: Props) {
 
 ================================================================================
 📄 ФАЙЛ: src\components\PublicationCarousel.tsx
-📊 Размер: 1586 байт
+📊 Размер: 1991 байт
 ================================================================================
 
 import { Link } from 'react-router-dom';
@@ -952,6 +958,16 @@ interface Props {
 
 export function PublicationCarousel({ publications, employeeId }: Props) {
   if (!publications || publications.length === 0) return null;
+  
+  const getFullAuthors = (pub: PublicationList) => {
+    const employeeNames = pub.authors_employees.map(emp => emp.full_name);
+    
+    const externalAuthors = pub.external_authors ? pub.external_authors.split(',').map(s => s.trim()) : [];
+    
+    const allAuthors = [...employeeNames, ...externalAuthors];
+    
+    return allAuthors.join(', ');
+  };
 
   return (
     <div className="mt-8">
@@ -968,7 +984,9 @@ export function PublicationCarousel({ publications, employeeId }: Props) {
               {pub.year}
             </span>
             <h4 className="font-medium text-sm line-clamp-2 mb-2 h-10">{pub.title}</h4>
-            <p className="text-xs text-gray-500 line-clamp-1">{pub.authors}</p>
+              <p className="text-xs text-gray-500 line-clamp-2 italic">
+                {getFullAuthors(pub)}
+              </p>
           </div>
         ))}
         
@@ -2271,7 +2289,7 @@ export function HomePage() {
 
 ================================================================================
 📄 ФАЙЛ: src\pages\public\PublicationDetailPage.tsx
-📊 Размер: 4656 байт
+📊 Размер: 4813 байт
 ================================================================================
 
 import { useEffect, useState } from 'react';
@@ -2296,9 +2314,12 @@ export function PublicationDetailPage() {
   if (loading) return <div className="container mx-auto px-4 py-8">Загрузка...</div>;
   if (!pub) return <div className="container mx-auto px-4 py-8 text-center">Публикация не найдена</div>;
 
+  // Разделяем авторов для детального просмотра
+  const hasEmployees = pub.authors_employees.length > 0;
+  const hasExternal = !!pub.external_authors && pub.external_authors.trim() !== '';
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Хлебные крошки */}
       <nav className="text-sm text-gray-500 mb-8 flex items-center gap-2">
         <Link to="/" className="hover:text-primary">Главная</Link>
         <span>/</span>
@@ -2323,57 +2344,55 @@ export function PublicationDetailPage() {
           <p className="whitespace-pre-line">{pub.abstract || 'Аннотация отсутствует.'}</p>
         </div>
 
-        <div className="border-t border-gray-100 pt-6 mt-8">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Авторы</h3>
-          <div className="flex flex-wrap gap-2">
-            {pub.authors_employees.length > 0 ? (
-              pub.authors_employees.map(emp => (
-                <Link 
-                  key={emp.id} 
-                  to={`/team/${emp.id}`}
-                  className="px-3 py-1.5 bg-gray-50 hover:bg-blue-50 text-gray-700 hover:text-blue-700 rounded-lg text-sm transition-colors border border-gray-200"
-                >
-                  {emp.full_name}
-                </Link>
-              ))
-            ) : (
-              <p className="text-gray-500 italic">{pub.authors}</p>
-            )}
+        {/* Блок авторов */}
+        {(hasEmployees || hasExternal) && (
+          <div className="border-t border-gray-100 pt-6 mt-8">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Авторы</h3>
+            
+            <div className="flex flex-wrap gap-y-3 gap-x-4">
+              {/* 1. Сотрудники лаборатории (с кнопками) */}
+              {hasEmployees && (
+                <div className="flex flex-wrap gap-2 w-full mb-2">
+                  {pub.authors_employees.map(emp => (
+                    <Link
+                      key={emp.id}
+                      to={`/team/${emp.id}`}
+                      className="inline-flex items-center px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg text-sm font-medium transition-colors border border-blue-200"
+                    >
+                      {emp.full_name}
+                      <span className="ml-1 text-xs opacity-70">(НПЛ ИПЭПТ)</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* 2. Внешние авторы (просто текст) */}
+              {hasExternal && (
+                <div className="text-gray-700 text-base w-full">
+                  <span className="font-semibold text-gray-900 mr-2">Соавторы:</span>
+                  {pub.external_authors}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mt-8 flex flex-wrap gap-4">
           {pub.doi && (
-            <a 
-              href={`https://doi.org/${pub.doi}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            <a href={`https://doi.org/${pub.doi}`} target="_blank" rel="noopener noreferrer"
+               className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">
               Перейти по DOI
             </a>
           )}
-          
           {pub.link && (
-            <a 
-              href={pub.link} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-blue-50 transition-colors"
-            >
+            <a href={pub.link} target="_blank" rel="noopener noreferrer"
+               className="inline-flex items-center gap-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-blue-50 transition-colors">
               Внешняя ссылка
             </a>
           )}
-
           {pub.pdf_url && (
-            <a 
-              href={pub.pdf_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-red-200 text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            <a href={pub.pdf_url} target="_blank" rel="noopener noreferrer"
+               className="inline-flex items-center gap-2 px-4 py-2 border border-red-200 text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
               Скачать PDF
             </a>
           )}
@@ -2734,7 +2753,7 @@ export interface PaginatedResponse<T> {
 
 ================================================================================
 📄 ФАЙЛ: src\types\index.ts
-📊 Размер: 2919 байт
+📊 Размер: 2886 байт
 ================================================================================
 
 export interface ResearchDirection {
@@ -2782,7 +2801,7 @@ export interface EmployeeDetail extends Omit<Employee, 'bio' | 'email' | 'phone'
   phone: string | null;
   show_email: boolean;
   show_phone: boolean;
-  recent_publications: Publication[]; // Массив публикаций
+  recent_publications: PublicationList[]; // Массив публикаций
 }
 
 export interface EquipmentCategory {
@@ -2808,7 +2827,7 @@ export interface Publication {
   id: number;
   title: string;
   slug: string;
-  authors: string;
+  external_authors: string
   abstract?: string;
   year: number;
   doi: string;
@@ -2854,18 +2873,18 @@ export interface PublicationList {
   id: number;
   title: string;
   slug: string;
-  authors: string; // Строка авторов из поля модели
+  external_authors: string;
   year: number;
   doi: string;
   direction: number | null;
-  authors_employees: AuthorMinimal[]; // Минимальные данные
+  authors_employees: AuthorMinimal[];
 }
 
 export interface PublicationDetail extends Omit<PublicationList, 'authors_employees'> {
   abstract: string;
   link: string;
   pdf_url: string | null;
-  authors_employees: Employee[]; // Полные объекты сотрудников
+  authors_employees: Employee[]; // Полные объекты сотрудников для детальной страницы
 }
 
 ================================================================================

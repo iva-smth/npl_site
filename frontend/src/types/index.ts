@@ -43,7 +43,7 @@ export interface EmployeeDetail extends Omit<Employee, 'bio' | 'email' | 'phone'
   phone: string | null;
   show_email: boolean;
   show_phone: boolean;
-  recent_publications: Publication[]; // Массив публикаций
+  recent_publications: PublicationList[]; // Массив публикаций
 }
 
 export interface EquipmentCategory {
@@ -69,7 +69,7 @@ export interface Publication {
   id: number;
   title: string;
   slug: string;
-  authors: string;
+  external_authors: string
   abstract?: string;
   year: number;
   doi: string;
@@ -115,16 +115,16 @@ export interface PublicationList {
   id: number;
   title: string;
   slug: string;
-  authors: string; // Строка авторов из поля модели
+  external_authors: string;
   year: number;
   doi: string;
   direction: number | null;
-  authors_employees: AuthorMinimal[]; // Минимальные данные
+  authors_employees: AuthorMinimal[];
 }
 
 export interface PublicationDetail extends Omit<PublicationList, 'authors_employees'> {
   abstract: string;
   link: string;
   pdf_url: string | null;
-  authors_employees: Employee[]; // Полные объекты сотрудников
+  authors_employees: Employee[]; // Полные объекты сотрудников для детальной страницы
 }

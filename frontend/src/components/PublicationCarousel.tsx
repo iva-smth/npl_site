@@ -8,6 +8,16 @@ interface Props {
 
 export function PublicationCarousel({ publications, employeeId }: Props) {
   if (!publications || publications.length === 0) return null;
+  
+  const getFullAuthors = (pub: PublicationList) => {
+    const employeeNames = pub.authors_employees.map(emp => emp.full_name);
+    
+    const externalAuthors = pub.external_authors ? pub.external_authors.split(',').map(s => s.trim()) : [];
+    
+    const allAuthors = [...employeeNames, ...externalAuthors];
+    
+    return allAuthors.join(', ');
+  };
 
   return (
     <div className="mt-8">
@@ -24,7 +34,9 @@ export function PublicationCarousel({ publications, employeeId }: Props) {
               {pub.year}
             </span>
             <h4 className="font-medium text-sm line-clamp-2 mb-2 h-10">{pub.title}</h4>
-            <p className="text-xs text-gray-500 line-clamp-1">{pub.authors}</p>
+              <p className="text-xs text-gray-500 line-clamp-2 italic">
+                {getFullAuthors(pub)}
+              </p>
           </div>
         ))}
         

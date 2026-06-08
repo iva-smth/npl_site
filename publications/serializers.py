@@ -7,7 +7,7 @@ class PublicationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publication
         fields = [
-            'id', 'title', 'slug', 'authors',
+            'id', 'title', 'slug', 'external_authors',
             'year', 'doi',
             'direction', 'authors_employees'
         ]
@@ -25,7 +25,7 @@ class PublicationDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publication
         fields = [
-            'id', 'title', 'slug', 'authors', 'abstract',
+            'id', 'title', 'slug', 'external_authors', 'abstract',
             'year', 'doi', 'link', 'pdf_file', 'pdf_url',
             'direction', 'authors_employees', 'created_at'
         ]
