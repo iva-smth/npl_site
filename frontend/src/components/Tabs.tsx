@@ -1,4 +1,5 @@
-import { useState, ReactNode, ReactElement } from 'react';
+// src/components/Tabs.tsx
+import { useState, Children, isValidElement, type ReactNode, type ReactElement } from 'react';
 
 interface TabsProps {
   children: ReactNode;
@@ -14,23 +15,27 @@ interface TabsTriggerProps {
   children: ReactNode;
 }
 
+// Вспомогательные функции для безопасной проверки типа элемента
+const isTabsTrigger = (child: ReactNode): child is ReactElement<TabsTriggerProps> => 
+  isValidElement(child) && child.type === TabsTrigger;
+
+const isTabsContent = (child: ReactNode): child is ReactElement<TabsContentProps> => 
+  isValidElement(child) && child.type === TabsContent;
+
 export function Tabs({ children }: TabsProps) {
   const [activeTab, setActiveTab] = useState('overview');
 
-  const handleTabClick = (tabName: string) => {
-    setActiveTab(tabName);
-  };
+  const triggers = Children.toArray(children).filter(isTabsTrigger);
+  const contents = Children.toArray(children).filter(isTabsContent);
 
   return (
     <div className="w-full">
       <div className="border-b border-gray-200">
         <nav className="flex space-x-8" aria-label="Tabs">
-          {React.Children.toArray(children).filter((child): child is ReactElement => 
-            child.type && child.type.displayName === 'TabsTrigger'
-          ).map((child, index: number) => (
+          {triggers.map((child, index) => (
             <button
               key={index}
-              onClick={() => handleTabClick(child.props.value)}
+              onClick={() => setActiveTab(child.props.value)}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === child.props.value
                   ? 'border-primary text-primary'
@@ -43,24 +48,27 @@ export function Tabs({ children }: TabsProps) {
         </nav>
       </div>
       <div className="mt-6">
-        {React.Children.toArray(children).filter((child): child is ReactElement => 
-          child.type && child.type.displayName === 'TabsContent'
-        ).map((child) =>
-          child.props.value === activeTab && <div key={child.props.value}>{child.props.children}</div>
+        {contents.map((child) => 
+          child.props.value === activeTab && (
+            <div key={child.props.value}>{child.props.children}</div>
+          )
         )}
       </div>
     </div>
   );
 }
 
-Tabs.Trigger = function TabsTrigger({ value, children }: TabsTriggerProps) {
+// Исправлено: используем правильное имя поля 'value' и префикс '_' для подавления предупреждения
+function TabsTrigger({ value: _value, children }: TabsTriggerProps) {
   return <>{children}</>;
-};
+}
+TabsTrigger.displayName = 'TabsTrigger';
 
-Tabs.Trigger.displayName = 'TabsTrigger';
-
-Tabs.Content = function TabsContent({ value, children }: TabsContentProps) {
+function TabsContent({ value: _value, children }: TabsContentProps) {
   return <>{children}</>;
-};
+}
+TabsContent.displayName = 'TabsContent';
 
-Tabs.Content.displayName = 'TabsContent';
+// Привязываем подкомпоненты к основному компоненту
+Tabs.Trigger = TabsTrigger;
+Tabs.Content = TabsContent;

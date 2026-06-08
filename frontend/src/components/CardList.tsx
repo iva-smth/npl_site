@@ -1,3 +1,4 @@
+// src/components/CardList.tsx
 import type { ResearchGroup, Employee, Equipment } from '../types';
 
 interface CardListProps {
@@ -14,17 +15,15 @@ interface EmployeeItem {
   full_name: string;
   position_label: string;
   position: string;
-  photo_url?: string;
+  photo_url?: string | null;
 }
 
 interface EquipmentItem {
   title: string;
   description: string;
   specs?: string;
-  image_url?: string;
+  image_url?: string | null;
 }
-
-type CardItem = GroupItem | EmployeeItem | EquipmentItem;
 
 export function CardList({ items, type }: CardListProps) {
   if (items.length === 0) {
@@ -35,18 +34,19 @@ export function CardList({ items, type }: CardListProps) {
     );
   }
 
-  const renderCard = (item: CardItem, index: number) => {
+  const renderCard = (item: ResearchGroup | Employee | Equipment, index: number) => {
     switch (type) {
-      case 'groups':
-        const groupItem = item as GroupItem;
+      case 'groups': {
+        const groupItem = item as ResearchGroup & GroupItem;
         return (
           <div key={index} className="border rounded-lg p-6 hover:shadow-lg transition">
             <h3 className="text-xl font-bold mb-2">{groupItem.title}</h3>
             <p className="text-gray-600 mb-4">{groupItem.description}</p>
           </div>
         );
-      case 'employees':
-        const employeeItem = item as EmployeeItem;
+      }
+      case 'employees': {
+        const employeeItem = item as Employee & EmployeeItem;
         return (
           <div key={index} className="border rounded-lg p-6 hover:shadow-lg transition flex items-center space-x-4">
             {employeeItem.photo_url && (
@@ -63,8 +63,9 @@ export function CardList({ items, type }: CardListProps) {
             </div>
           </div>
         );
-      case 'equipment':
-        const equipmentItem = item as EquipmentItem;
+      }
+      case 'equipment': {
+        const equipmentItem = item as Equipment & EquipmentItem;
         return (
           <div key={index} className="border rounded-lg p-6 hover:shadow-lg transition">
             {equipmentItem.image_url && (
@@ -84,6 +85,7 @@ export function CardList({ items, type }: CardListProps) {
             )}
           </div>
         );
+      }
       default:
         return null;
     }

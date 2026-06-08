@@ -3,8 +3,40 @@
     "model": "team.position",
     "pk": 1,
     "fields": {
-      "title": "Профессор",
+      "title": "Заведующий лабораторией",
       "order": 1
+    }
+  },
+  {
+    "model": "team.position",
+    "pk": 2,
+    "fields": {
+      "title": "Старший научный сотрудник",
+      "order": 2
+    }
+  },
+  {
+    "model": "team.position",
+    "pk": 3,
+    "fields": {
+      "title": "Инженер-исследователь",
+      "order": 3
+    }
+  },
+  {
+    "model": "team.position",
+    "pk": 4,
+    "fields": {
+      "title": "Научный сотрудник",
+      "order": 4
+    }
+  },
+  {
+    "model": "team.position",
+    "pk": 5,
+    "fields": {
+      "title": "Аспирант",
+      "order": 5
     }
   },
   {
@@ -12,50 +44,107 @@
     "pk": 1,
     "fields": {
       "full_name": "Иванов Иван Иванович",
-      "position": "head",
-      "custom_position": null,
-      "photo": "",
-      "bio": "Доктор физико-математических наук, руководитель лаборатории.",
+      "position": 1,
+      "bio": "Доктор физико-математических наук, профессор. Руководитель лаборатории с 2010 года. Специалист в области физики высоких плотностей энергии.",
       "email": "ivanov@tpu.ru",
-      "phone": "+79001234567",
+      "phone": "+7 (3822) 56-30-01",
       "show_email": true,
-      "show_phone": false,
+      "show_phone": true,
+      "is_public_contact": true,
       "direction": 1,
-      "group": 1
+      "group": 1,
+      "created_at": "2025-01-01T10:00:00Z",
+      "updated_at": "2025-01-01T10:00:00Z"
     }
   },
   {
     "model": "team.employee",
     "pk": 2,
     "fields": {
-      "full_name": "Петрова Анна Сергеевна",
-      "position": "senior_researcher",
-      "custom_position": 1,
-      "photo": "",
-      "bio": "Кандидат технических наук, специалист по плазменной диагностике.",
-      "email": "petrova@tpu.ru",
-      "phone": "+79007654321",
+      "full_name": "Петров Петр Петрович",
+      "position": 2,
+      "bio": "Кандидат технических наук. Ведущий специалист по разработке плазменных ускорителей. Автор более 50 научных статей.",
+      "email": "petrov@tpu.ru",
+      "phone": "+7 (3822) 56-30-02",
       "show_email": true,
-      "show_phone": true,
-      "direction": 3,
-      "group": 2
+      "show_phone": false,
+      "is_public_contact": true,
+      "direction": 2,
+      "group": 2,
+      "created_at": "2025-01-02T10:00:00Z",
+      "updated_at": "2025-01-02T10:00:00Z"
     }
   },
   {
     "model": "team.employee",
     "pk": 3,
     "fields": {
-      "full_name": "Сидоров Петр Алексеевич",
-      "position": "student",
-      "custom_position": null,
-      "photo": "",
-      "bio": "Аспирант, изучает импульсные разряды.",
-      "email": "sidorov@tpu.ru",
+      "full_name": "Сидорова Анна Сергеевна",
+      "position": 3,
+      "bio": "Инженер-исследователь. Отвечает за техническое обслуживание диагностического оборудования и сбор данных экспериментов.",
+      "email": "sidorova@tpu.ru",
+      "phone": "+7 (3822) 56-30-03",
+      "show_email": true,
+      "show_phone": true,
+      "is_public_contact": false,
+      "direction": 1,
+      "group": 4,
+      "created_at": "2025-01-03T10:00:00Z",
+      "updated_at": "2025-01-03T10:00:00Z"
+    }
+  },
+  {
+    "model": "team.employee",
+    "pk": 4,
+    "fields": {
+      "full_name": "Кузнецов Дмитрий Владимирович",
+      "position": 2,
+      "bio": "Кандидат физико-математических наук. Специализируется на численном моделировании газовых разрядов.",
+      "email": "kuznetsov@tpu.ru",
       "phone": "",
+      "show_email": true,
+      "show_phone": false,
+      "is_public_contact": false,
+      "direction": 2,
+      "group": 2,
+      "created_at": "2025-01-04T10:00:00Z",
+      "updated_at": "2025-01-04T10:00:00Z"
+    }
+  },
+  {
+    "model": "team.employee",
+    "pk": 5,
+    "fields": {
+      "full_name": "Смирнова Елена Викторовна",
+      "position": 4,
+      "bio": "Научный сотрудник. Занимается исследованием взаимодействия плазмы с твердыми телами.",
+      "email": "smirnova@tpu.ru",
+      "phone": "+7 (3822) 56-30-05",
       "show_email": false,
       "show_phone": false,
-      "direction": 2,
-      "group": null
+      "is_public_contact": false,
+      "direction": 3,
+      "group": 3,
+      "created_at": "2025-01-05T10:00:00Z",
+      "updated_at": "2025-01-05T10:00:00Z"
+    }
+  },
+  {
+    "model": "team.employee",
+    "pk": 6,
+    "fields": {
+      "full_name": "Волков Алексей Николаевич",
+      "position": 5,
+      "bio": "Аспирант кафедры физики. Тема диссертации: 'Оптимизация параметров сильноточного электронного пучка'.",
+      "email": "volkov@tpu.ru",
+      "phone": "+79138001122",
+      "show_email": true,
+      "show_phone": true,
+      "is_public_contact": false,
+      "direction": 1,
+      "group": 1,
+      "created_at": "2025-01-06T10:00:00Z",
+      "updated_at": "2025-01-06T10:00:00Z"
     }
   }
 ]

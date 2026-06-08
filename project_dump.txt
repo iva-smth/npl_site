@@ -482,6 +482,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from research.views import ResearchDirectionViewSet, ResearchGroupViewSet
 from team.views import EmployeeViewSet
 from equipment.views import EquipmentViewSet
+from equipment.views import EquipmentViewSet, EquipmentCategoryViewSet # Добавил CategoryViewSet
 from publications.views import PublicationViewSet
 
 router = DefaultRouter()
@@ -489,6 +490,7 @@ router.register(r'directions', ResearchDirectionViewSet, basename='direction')
 router.register(r'groups', ResearchGroupViewSet, basename='group')
 router.register(r'employees', EmployeeViewSet, basename='employee')
 router.register(r'equipment', EquipmentViewSet, basename='equipment')
+router.register(r'equipment-categories', EquipmentCategoryViewSet, basename='equipment-category')
 router.register(r'publications', PublicationViewSet, basename='publication')
 
 urlpatterns = [
@@ -704,17 +706,33 @@ class EquipmentConfig(AppConfig):
 from django.db import models
 from django.utils.text import slugify
 
-
 class EquipmentCategory(models.Model):
-    """Категории оборудования"""
+    """Категории оборудования с поддержкой вложенности"""
     title = models.CharField("Название категории", max_length=100)
     slug = models.SlugField("URL-метка", unique=True)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+        verbose_name="Родительская категория"
+    )
 
     class Meta:
         verbose_name = "Категория оборудования"
         verbose_name_plural = "Категории оборудования"
+        ordering = ['title']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
+        # Отображаем путь, например: "Электроника > Осциллографы"
+        if self.parent:
+            return f"{self.parent} > {self.title}"
         return self.title
 
 
@@ -776,12 +794,20 @@ from .models import Equipment, EquipmentCategory
 
 
 class EquipmentCategorySerializer(serializers.ModelSerializer):
-    """Сериализатор для категорий оборудования"""
+    children = serializers.SerializerMethodField() # Или вложенный сериализатор
+
     class Meta:
         model = EquipmentCategory
-        fields = ['id', 'title', 'slug']
+        fields = ['id', 'title', 'slug', 'parent', 'children']
 
-
+    def get_children(self, obj):
+        # Логика получения детей
+        children = EquipmentCategory.objects.filter(parent=obj)
+        if children:
+            # Рекурсивно сериализуем детей
+            return EquipmentCategorySerializer(children, many=True).data
+        return []
+    
 class EquipmentSerializer(serializers.ModelSerializer):
     """Сериализатор для оборудования"""
     category = EquipmentCategorySerializer(read_only=True)
@@ -822,15 +848,36 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from .models import EquipmentCategory
+from .serializers import EquipmentCategorySerializer
+
+class EquipmentCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Возвращает дерево категорий.
+    Фильтруем по parent=None, чтобы получить только корни.
+    """
+    serializer_class = EquipmentCategorySerializer
+    
+    def get_queryset(self):
+        return EquipmentCategory.objects.filter(parent=None).order_by('title')
 
 class EquipmentViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly] 
     queryset = Equipment.objects.all().order_by('title')
     serializer_class = EquipmentSerializer
+    lookup_field = 'slug'
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['category', 'direction']
     search_fields = ['title', 'description']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        category_ids = self.request.query_params.get('category__in', None)
+        if category_ids:
+            ids_list = [int(id) for id in category_ids.split(',')]
+            queryset = queryset.filter(category_id__in=ids_list)
+        return queryset
 
     @action(detail=False, methods=['get'])
     def suggestions(self, request):
@@ -849,6 +896,8 @@ class EquipmentViewSet(viewsets.ReadOnlyModelViewSet):
         ).values_list('title', flat=True).distinct()[:10] # Берем топ-10
         
         return Response(list(equipments))
+    
+    
 
 
 
@@ -857,16 +906,13 @@ class EquipmentViewSet(viewsets.ReadOnlyModelViewSet):
 ============================================================
 
 from django.contrib import admin
-from .models import PublicationType, Publication
+from .models import Publication
 
-@admin.register(PublicationType)
-class PublicationTypeAdmin(admin.ModelAdmin):
-    list_display = ('title',)
 
 @admin.register(Publication)
 class PublicationAdmin(admin.ModelAdmin):
-    list_display = ('title', 'year', 'pub_type', 'direction')
-    list_filter = ('year', 'pub_type', 'direction')
+    list_display = ('title', 'year', 'direction')
+    list_filter = ('year', 'direction')
     search_fields = ('title', 'authors', 'doi')
     prepopulated_fields = {'slug': ('title',)}
 
@@ -893,19 +939,6 @@ from django.db import models
 from django.utils.text import slugify
 
 
-class PublicationType(models.Model):
-    """Типы публикаций (статья, доклад, патент, отчет)"""
-    title = models.CharField("Название типа", max_length=50)
-    slug = models.SlugField("URL-метка", unique=True)
-
-    class Meta:
-        verbose_name = "Тип публикации"
-        verbose_name_plural = "Типы публикаций"
-
-    def __str__(self):
-        return self.title
-
-
 class Publication(models.Model):
     """Публикации сотрудников"""
     title = models.CharField("Название", max_length=300)
@@ -913,13 +946,6 @@ class Publication(models.Model):
     authors = models.CharField("Авторы", max_length=500)
     abstract = models.TextField("Аннотация", blank=True)
     
-    pub_type = models.ForeignKey(
-        PublicationType,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name="Тип"
-    )
     year = models.IntegerField("Год")
     doi = models.CharField("DOI", max_length=100, blank=True)
     link = models.URLField("Ссылка на ресурс", blank=True)
@@ -962,47 +988,52 @@ class Publication(models.Model):
 ============================================================
 
 from rest_framework import serializers
-from .models import Publication, PublicationType
+from .models import Publication
 
+class PublicationListSerializer(serializers.ModelSerializer):
+    authors_employees = serializers.SerializerMethodField()
 
-class PublicationTypeSerializer(serializers.ModelSerializer):
-    """Сериализатор для типов публикаций"""
     class Meta:
-        model = PublicationType
-        fields = ['id', 'title', 'slug']
+        model = Publication
+        fields = [
+            'id', 'title', 'slug', 'authors',
+            'year', 'doi',
+            'direction', 'authors_employees'
+        ]
 
+    def get_authors_employees(self, obj):
+        return [
+            {'id': emp.id, 'full_name': emp.full_name}
+            for emp in obj.authors_employees.all()
+        ]
 
-class PublicationSerializer(serializers.ModelSerializer):
-    """Сериализатор для публикаций"""
-    pub_type = PublicationTypeSerializer(read_only=True)
-    pub_type_id = serializers.PrimaryKeyRelatedField(
-        queryset=PublicationType.objects.all(),
-        source='pub_type',
-        write_only=True,
-        required=False
-    )
+class PublicationDetailSerializer(serializers.ModelSerializer):
     pdf_url = serializers.SerializerMethodField()
     authors_employees = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Publication
         fields = [
             'id', 'title', 'slug', 'authors', 'abstract',
-            'pub_type', 'pub_type_id', 'year', 'doi',
-            'link', 'pdf_file', 'pdf_url', 'direction',
-            'authors_employees', 'created_at'
+            'year', 'doi', 'link', 'pdf_file', 'pdf_url',
+            'direction', 'authors_employees', 'created_at'
         ]
-        read_only_fields = ['slug', 'created_at']
-    
+
     def get_pdf_url(self, obj):
         request = self.context.get('request')
         if obj.pdf_file and request:
             return request.build_absolute_uri(obj.pdf_file.url)
         return obj.pdf_file.url if obj.pdf_file else None
-    
+
     def get_authors_employees(self, obj):
-        from team.serializers import EmployeeSerializer
-        return EmployeeSerializer(obj.authors_employees.all(), many=True, context=self.context).data
+        return [
+            {
+                'id': emp.id, 
+                'full_name': emp.full_name,
+                'photo_url': emp.photo.url if emp.photo else None # Упрощенно
+            }
+            for emp in obj.authors_employees.all()
+        ]
 
 
 
@@ -1013,18 +1044,41 @@ class PublicationSerializer(serializers.ModelSerializer):
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Publication
-from .serializers import PublicationSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .serializers import PublicationListSerializer, PublicationDetailSerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.db.models import Count
 
 class PublicationViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    queryset = Publication.objects.all().order_by('-year', '-created_at') 
-    serializer_class = PublicationSerializer
+    permission_classes = []
     lookup_field = 'slug'
     
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['year', 'pub_type', 'direction']
-    search_fields = ['title', 'authors', 'abstract']  
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['year', 'direction', 'authors_employees']
+    
+    search_fields = ['title', 'authors', 'doi', 'abstract']
+    
+    ordering_fields = ['year', 'title', 'authors', 'created_at']
+    ordering = ['-year', '-created_at']
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return PublicationDetailSerializer
+        return PublicationListSerializer
+
+    def get_queryset(self):
+        return Publication.objects.select_related(
+            'direction'
+        ).prefetch_related('authors_employees').order_by('-year', '-created_at')
+    
+    @action(detail=False, methods=['get'])
+    def years(self, request):
+        """
+        Возвращает список уникальных годов, за которые есть публикации.
+        Пример ответа: [2026, 2025, 2024...]
+        """
+        years = Publication.objects.values_list('year', flat=True).distinct().order_by('-year')
+        return Response(list(years))
 
 
 
@@ -1238,39 +1292,29 @@ class Position(models.Model):
 
 class Employee(models.Model):
     """Сотрудники лаборатории"""
-    POSITION_CHOICES = [
-        ('head', 'Руководитель лаборатории'),
-        ('senior_researcher', 'Старший научный сотрудник'),
-        ('researcher', 'Научный сотрудник'),
-        ('engineer', 'Инженер'),
-        ('student', 'Студент/Аспирант'),
-    ]
-
     full_name = models.CharField("ФИО", max_length=200)
-    position = models.CharField(
-        "Должность (основная)", 
-        max_length=50, 
-        choices=POSITION_CHOICES
-    )
-    custom_position = models.ForeignKey(
+    position = models.ForeignKey(
         Position,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name="Должность (дополнительно)"
+        verbose_name="Должность"
     )
+    
     photo = models.ImageField("Фото", upload_to='employees/', blank=True, null=True)
     bio = models.TextField("Биография", blank=True)
     
-    # Контактная информация
     email = models.EmailField("Email", blank=True)
     phone = models.CharField("Телефон", max_length=20, blank=True)
     
-    # Настройки видимости (ТЗ п.4.e)
     show_email = models.BooleanField("Показывать email", default=True)
     show_phone = models.BooleanField("Показывать телефон", default=False)
-    
-    # Связи
+    is_public_contact = models.BooleanField(
+        "Отображать на странице контактов", 
+        default=False,
+        help_text="Если отмечено, сотрудник появится на странице 'Контакты' с открытыми данными."
+    )
+
     direction = models.ForeignKey(
         'research.ResearchDirection',
         on_delete=models.SET_NULL,
@@ -1305,56 +1349,92 @@ class Employee(models.Model):
 📄 Файл: team\serializers.py
 ============================================================
 
+# team/serializers.py
 from rest_framework import serializers
 from .models import Position, Employee
-
+from publications.models import Publication
+from publications.serializers import PublicationListSerializer
 
 class PositionSerializer(serializers.ModelSerializer):
-    """Сериализатор для должностей"""
     class Meta:
         model = Position
         fields = ['id', 'title', 'order']
 
-
 class EmployeeSerializer(serializers.ModelSerializer):
-    """Сериализатор для сотрудников"""
+    """Базовый сериализатор для списка сотрудников"""
     photo_url = serializers.SerializerMethodField()
-    position_label = serializers.SerializerMethodField()
-    custom_position = PositionSerializer(read_only=True)
-    custom_position_id = serializers.PrimaryKeyRelatedField(
-        queryset=Position.objects.all(),
-        source='custom_position',
-        write_only=True,
-        required=False
-    )
-    # Контакты только если разрешено показывать
+    position_title = serializers.CharField(source='position.title', read_only=True, allow_null=True)
+    position_order = serializers.IntegerField(source='position.order', read_only=True, allow_null=True)
+
     email = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
     
+    direction_title = serializers.CharField(source='direction.title', read_only=True, allow_null=True)
+    group_title = serializers.CharField(source='group.title', read_only=True, allow_null=True)
+
     class Meta:
         model = Employee
         fields = [
-            'id', 'full_name', 'photo_url', 'position_label',
-            'position', 'custom_position', 'custom_position_id',
-            'bio', 'email', 'phone', 'direction', 'group',
+            'id', 'full_name', 'photo_url', 'position_title', 'position_order',
+            'position', 'bio',
+            'email', 'phone', 'show_email', 'show_phone',
+            'direction', 'group', 'direction_title', 'group_title',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['created_at', 'updated_at']
-    
+
     def get_photo_url(self, obj):
         request = self.context.get('request')
         if obj.photo and request:
             return request.build_absolute_uri(obj.photo.url)
         return obj.photo.url if obj.photo else None
-    
+
     def get_position_label(self, obj):
         return obj.get_position_display()
-    
+
     def get_email(self, obj):
         return obj.email if obj.show_email else None
-    
+
     def get_phone(self, obj):
         return obj.phone if obj.show_phone else None
+
+class EmployeeDetailSerializer(serializers.ModelSerializer):
+    """Сериализатор для детальной страницы сотрудника"""
+    photo_url = serializers.SerializerMethodField()
+    position_title = serializers.CharField(source='position.title', read_only=True, allow_null=True)
+    email = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
+    recent_publications = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Employee
+        fields = [
+            'id', 'full_name', 'photo_url', 'position_title',
+            'bio', 'email', 'phone',
+            'show_email', 'show_phone',
+            'direction', 'group',
+            'recent_publications'
+        ]
+
+    def get_photo_url(self, obj):
+        request = self.context.get('request')
+        if obj.photo and request:
+            return request.build_absolute_uri(obj.photo.url)
+        return obj.photo.url if obj.photo else None
+
+    def get_position_label(self, obj):
+        return obj.get_position_display()
+
+    def get_email(self, obj):
+        return obj.email if obj.show_email else None
+
+    def get_phone(self, obj):
+        return obj.phone if obj.show_phone else None
+
+    def get_recent_publications(self, obj):
+        pubs = Publication.objects.filter(
+            authors_employees=obj
+        ).order_by('-year', '-created_at')[:5]
+        return PublicationListSerializer(pubs, many=True, context=self.context).data
 
 
 
@@ -1362,15 +1442,50 @@ class EmployeeSerializer(serializers.ModelSerializer):
 📄 Файл: team\views.py
 ============================================================
 
-from rest_framework import viewsets
+# team/views.py
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Employee
-from .serializers import EmployeeSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .serializers import EmployeeDetailSerializer, EmployeeSerializer
+from django.db.models import F
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class EmployeeViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly] 
-    queryset = Employee.objects.all().order_by('full_name')
-    serializer_class = EmployeeSerializer
+    permission_classes = [] 
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['direction', 'group', 'position']
+    search_fields = [
+        'full_name',
+        'position__title' 
+    ]
+    
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return EmployeeDetailSerializer
+        return EmployeeSerializer
+        
+    def get_queryset(self):
+        return Employee.objects.select_related(
+            'direction', 'group', 'position'
+        ).order_by(
+            'position__order',
+            'direction__order',
+            'group__title',
+            'full_name'
+        )
+
+    @action(detail=False, methods=['get'])
+    def contacts(self, request):
+        """
+        Возвращает список сотрудников, помеченных как контактные лица.
+        Для них мы форсируем показ email и телефона, если они есть в базе,
+        независимо от личных настроек приватности (опционально, по ТЗ "всегда видно").
+        """
+        queryset = self.get_queryset().filter(is_public_contact=True)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 

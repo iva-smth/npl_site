@@ -1,37 +1,5 @@
 [
   {
-    "model": "publications.publicationtype",
-    "pk": 1,
-    "fields": {
-      "title": "Статья в журнале",
-      "slug": "journal-article"
-    }
-  },
-  {
-    "model": "publications.publicationtype",
-    "pk": 2,
-    "fields": {
-      "title": "Доклад на конференции",
-      "slug": "conference-paper"
-    }
-  },
-  {
-    "model": "publications.publicationtype",
-    "pk": 3,
-    "fields": {
-      "title": "Патент",
-      "slug": "patent"
-    }
-  },
-  {
-    "model": "publications.publicationtype",
-    "pk": 4,
-    "fields": {
-      "title": "Отчет",
-      "slug": "report"
-    }
-  },
-  {
     "model": "publications.publication",
     "pk": 1,
     "fields": {
@@ -39,7 +7,6 @@
       "slug": "high-power-impulse-electron-beam",
       "authors": "Ivanov A.A., Petrov V.S., Sidorov K.M.",
       "abstract": "Investigation of high-power impulse electron beam generation using plasma cathode",
-      "pub_type": 1,
       "year": 2025,
       "doi": "10.1016/j.nima.2025.01.001",
       "link": "https://doi.org/10.1016/j.nima.2025.01.001",
@@ -56,7 +23,6 @@
       "slug": "plasma-diagnostics-spectroscopy",
       "authors": "Petrov V.S., Kuznetsova E.A.",
       "abstract": "Application of optical emission spectroscopy for plasma diagnostics in discharge systems",
-      "pub_type": 1,
       "year": 2025,
       "doi": "10.1088/1361-6595/ab1234",
       "link": "https://doi.org/10.1088/1361-6595/ab1234",
@@ -73,7 +39,6 @@
       "slug": "spark-discharge-nanoparticles",
       "authors": "Sidorov K.M., Ivanov A.B.",
       "abstract": "Novel method of nanoparticle synthesis using spark discharge in liquids",
-      "pub_type": 2,
       "year": 2024,
       "doi": "",
       "link": "https://conference.example.com/2024/papers/123",
@@ -90,7 +55,6 @@
       "slug": "patent-electron-beam-device",
       "authors": "Ivanov A.B., Petrov V.S.",
       "abstract": "Патент на устройство для генерации мощных импульсных пучков электронов",
-      "pub_type": 3,
       "year": 2025,
       "doi": "",
       "link": "",

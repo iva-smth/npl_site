@@ -22,13 +22,28 @@ export interface Employee {
   id: number;
   full_name: string;
   photo_url: string | null;
-  position_label: string;
-  position: string;
-  bio: string;
+  position_title: string | null;
+  position_order: number | null;
+  position: number | null;
+  bio?: string;
   email: string | null;
   phone: string | null;
+  show_email: boolean;
+  show_phone: boolean;
   direction: number | null;
   group: number | null;
+  direction_title: string | null;
+  group_title: string | null;
+  is_public_contact: boolean; // <-- Добавлено
+}
+
+export interface EmployeeDetail extends Omit<Employee, 'bio' | 'email' | 'phone'> {
+  bio: string; // Теперь точно есть, но может быть пустым
+  email: string | null;
+  phone: string | null;
+  show_email: boolean;
+  show_phone: boolean;
+  recent_publications: Publication[]; // Массив публикаций
 }
 
 export interface EquipmentCategory {
@@ -55,19 +70,13 @@ export interface Publication {
   title: string;
   slug: string;
   authors: string;
-  abstract: string;
-  pub_type: PublicationType | null;
+  abstract?: string;
   year: number;
   doi: string;
-  link: string;
-  pdf_url: string | null;
-  authors_employees: Employee[];
-}
-
-export interface PublicationType {
-  id: number;
-  title: string;
-  slug: string;
+  link?: string;
+  pdf_url?: string;
+  direction: number | null;
+  authors_employees: AuthorMinimal[];
 }
 
 export interface User {
@@ -95,4 +104,27 @@ export interface Keyword {
   id: number;
   word: string;
   count: number;
+}
+
+export interface AuthorMinimal {
+  id: number;
+  full_name: string;
+}
+
+export interface PublicationList {
+  id: number;
+  title: string;
+  slug: string;
+  authors: string; // Строка авторов из поля модели
+  year: number;
+  doi: string;
+  direction: number | null;
+  authors_employees: AuthorMinimal[]; // Минимальные данные
+}
+
+export interface PublicationDetail extends Omit<PublicationList, 'authors_employees'> {
+  abstract: string;
+  link: string;
+  pdf_url: string | null;
+  authors_employees: Employee[]; // Полные объекты сотрудников
 }

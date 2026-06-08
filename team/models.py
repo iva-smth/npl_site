@@ -17,39 +17,29 @@ class Position(models.Model):
 
 class Employee(models.Model):
     """Сотрудники лаборатории"""
-    POSITION_CHOICES = [
-        ('head', 'Руководитель лаборатории'),
-        ('senior_researcher', 'Старший научный сотрудник'),
-        ('researcher', 'Научный сотрудник'),
-        ('engineer', 'Инженер'),
-        ('student', 'Студент/Аспирант'),
-    ]
-
     full_name = models.CharField("ФИО", max_length=200)
-    position = models.CharField(
-        "Должность (основная)", 
-        max_length=50, 
-        choices=POSITION_CHOICES
-    )
-    custom_position = models.ForeignKey(
+    position = models.ForeignKey(
         Position,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name="Должность (дополнительно)"
+        verbose_name="Должность"
     )
+    
     photo = models.ImageField("Фото", upload_to='employees/', blank=True, null=True)
     bio = models.TextField("Биография", blank=True)
     
-    # Контактная информация
     email = models.EmailField("Email", blank=True)
     phone = models.CharField("Телефон", max_length=20, blank=True)
     
-    # Настройки видимости (ТЗ п.4.e)
     show_email = models.BooleanField("Показывать email", default=True)
     show_phone = models.BooleanField("Показывать телефон", default=False)
-    
-    # Связи
+    is_public_contact = models.BooleanField(
+        "Отображать на странице контактов", 
+        default=False,
+        help_text="Если отмечено, сотрудник появится на странице 'Контакты' с открытыми данными."
+    )
+
     direction = models.ForeignKey(
         'research.ResearchDirection',
         on_delete=models.SET_NULL,

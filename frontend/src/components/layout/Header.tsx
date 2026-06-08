@@ -29,6 +29,11 @@ export function Header() {
                 Команда
               </Link>
             </li>
+            <li>
+              <Link to="/contacts" className="hover:text-gray-300">
+                Контакты
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

@@ -1,23 +1,21 @@
 // src/components/CategoryTree.tsx
 import { useState } from 'react';
-import type { EquipmentCategory, Equipment } from '../types';
-import { equipmentApi } from '../api/services/equipment';
-import { Link } from 'react-router-dom';
+import type { EquipmentCategory } from '../types';
 
 interface CategoryTreeProps {
   categories: EquipmentCategory[];
-  onSelectCategory: (category: EquipmentCategory) => void;
+  onSelect: (category: EquipmentCategory) => void;
   selectedCategoryId: number | null;
 }
 
-export function CategoryTree({ categories, onSelectCategory, selectedCategoryId }: CategoryTreeProps) {
+export function CategoryTree({ categories, onSelect, selectedCategoryId }: CategoryTreeProps) {
   return (
     <div className="space-y-4">
       {categories.map((cat) => (
-        <CategoryItem 
-          key={cat.id} 
-          category={cat} 
-          onSelect={onSelectCategory}
+        <CategoryItem
+          key={cat.id}
+          category={cat}
+          onSelect={onSelect}
           isSelected={selectedCategoryId === cat.id}
         />
       ))}
@@ -57,14 +55,14 @@ function CategoryItem({ category, onSelect, isSelected }: CategoryItemProps) {
           </span>
         )}
       </button>
-
-      {/* Рекурсивный рендер дочерних категорий */}
+      
       {isExpanded && hasChildren && category.children && (
         <div className="mt-2">
-          <CategoryTree 
-            categories={category.children} 
-            onSelectCategory={onSelect}
-            selectedCategoryId={isSelected ? null : null} // Сбрасываем выделение при раскрытии, или можно оставить логику
+          {/* Исправлено: используем onSelect вместо onSelectCategory */}
+          <CategoryTree
+            categories={category.children}
+            onSelect={onSelect}
+            selectedCategoryId={null}
           />
         </div>
       )}
