@@ -1,3 +1,5 @@
+// src/types/index.ts
+
 export interface ResearchDirection {
   id: number;
   title: string;
@@ -5,9 +7,11 @@ export interface ResearchDirection {
   description: string;
   image_url: string | null;
   order: number;
-  groups: ResearchGroup[];
+  groups: ResearchGroup[]; // Здесь используем базовый ResearchGroup для списка
   created_at: string;
   updated_at: string;
+  key_employees?: Employee[];
+  featured_equipment?: Equipment[];
 }
 
 export interface ResearchGroup {
@@ -16,6 +20,18 @@ export interface ResearchGroup {
   slug: string;
   description: string;
   created_at: string;
+  // Поля для детальной страницы (могут быть undefined в списке)
+  direction?: number;
+  direction_title?: string;
+  topics?: ResearchTopic[];
+  employees?: Employee[];
+  direction_equipment?: Equipment[];
+}
+
+export interface ResearchTopic {
+  id: number;
+  title: string;
+  description: string;
 }
 
 export interface Employee {
@@ -34,16 +50,16 @@ export interface Employee {
   group: number | null;
   direction_title: string | null;
   group_title: string | null;
-  is_public_contact: boolean; // <-- Добавлено
+  is_public_contact: boolean;
 }
 
 export interface EmployeeDetail extends Omit<Employee, 'bio' | 'email' | 'phone'> {
-  bio: string; // Теперь точно есть, но может быть пустым
+  bio: string;
   email: string | null;
   phone: string | null;
   show_email: boolean;
   show_phone: boolean;
-  recent_publications: PublicationList[]; // Массив публикаций
+  recent_publications: PublicationList[];
 }
 
 export interface EquipmentCategory {
@@ -51,7 +67,7 @@ export interface EquipmentCategory {
   title: string;
   slug: string;
   parent: number | null;
-  children?: EquipmentCategory[]; // Рекурсивная структура
+  children?: EquipmentCategory[];
 }
 
 export interface Equipment {
@@ -69,7 +85,7 @@ export interface Publication {
   id: number;
   title: string;
   slug: string;
-  external_authors: string
+  external_authors: string;
   abstract?: string;
   year: number;
   doi: string;
@@ -126,5 +142,24 @@ export interface PublicationDetail extends Omit<PublicationList, 'authors_employ
   abstract: string;
   link: string;
   pdf_url: string | null;
-  authors_employees: Employee[]; // Полные объекты сотрудников для детальной страницы
+  authors_employees: Employee[];
+}
+
+export interface HomeData {
+  message: string;
+  stats: {
+    directions: number;
+    publications: number;
+    employees: number;
+  };
+  slider_directions: ResearchDirection[];
+  latest_publications: PublicationList[];
+  top_keywords: Keyword[];
+}
+
+export interface ResearchGroupDetail extends ResearchGroup {
+    direction_title: string;
+    topics: ResearchTopic[];
+    employees: Employee[];
+    direction_equipment?: Equipment[];
 }

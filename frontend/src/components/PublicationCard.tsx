@@ -6,11 +6,11 @@ interface Props {
 }
 
 export function PublicationCard({ pub }: Props) {
-  // Формируем полный список авторов для отображения в карточке
   const employeeNames = pub.authors_employees.map(emp => emp.full_name);
-  const externalAuthors = pub.external_authors ? pub.external_authors.split(',').map(s => s.trim()) : [];
+  const externalAuthors = pub.external_authors 
+    ? pub.external_authors.split(',').map(s => s.trim()).filter(s => s.length > 0) 
+    : [];
   
-  // Объединяем списки. Сначала сотрудники, потом внешние (или наоборот, по желанию)
   const allAuthors = [...employeeNames, ...externalAuthors].join(', ');
 
   return (
@@ -25,14 +25,11 @@ export function PublicationCard({ pub }: Props) {
             ({pub.year})
           </span>
         </h3>
-        
-        {/* Отображаем всех авторов */}
         {allAuthors && (
           <p className="text-sm text-gray-600 mb-3 line-clamp-1 italic">
             {allAuthors}
           </p>
         )}
-
         {pub.doi && (
           <div className="flex items-center gap-2 text-xs text-gray-400 font-mono">
             <span>DOI:</span>
@@ -40,7 +37,6 @@ export function PublicationCard({ pub }: Props) {
           </div>
         )}
       </div>
-      
       <div className="hidden sm:flex items-center justify-center w-10 h-10 shrink-0 text-gray-300 group-hover:text-primary transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />

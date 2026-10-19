@@ -5,11 +5,11 @@
     "fields": {
       "title": "Импульсно-пучковые технологии",
       "slug": "impulse-beam-technologies",
-      "description": "Исследование и разработка импульсных источников пучков заряженных частиц для различных применений",
-      "image": "directions/impulse_beam.jpg",
+      "description": "Разработка и исследование мощных импульсных пучков заряженных частиц для различных приложений.",
+      "image": "",
       "order": 1,
-      "created_at": "2026-01-01T10:00:00Z",
-      "updated_at": "2026-01-01T10:00:00Z"
+      "created_at": "2026-06-09T10:00:00Z",
+      "updated_at": "2026-06-09T10:00:00Z"
     }
   },
   {
@@ -18,11 +18,11 @@
     "fields": {
       "title": "Электроразрядные технологии",
       "slug": "electric-discharge-technologies",
-      "description": "Разработка электроразрядных систем для обработки материалов и генерации плазмы",
-      "image": "directions/electric_discharge.jpg",
+      "description": "Изучение физических процессов в газовых разрядах и создание устройств на их основе.",
+      "image": "",
       "order": 2,
-      "created_at": "2026-01-01T10:00:00Z",
-      "updated_at": "2026-01-01T10:00:00Z"
+      "created_at": "2026-06-09T10:00:00Z",
+      "updated_at": "2026-06-09T10:00:00Z"
     }
   },
   {
@@ -31,11 +31,11 @@
     "fields": {
       "title": "Плазменные технологии",
       "slug": "plasma-technologies",
-      "description": "Исследование низкотемпературной плазмы и её применение в промышленности",
-      "image": "directions/plasma.jpg",
+      "description": "Применение низкотемпературной плазмы для модификации поверхностей и синтеза материалов.",
+      "image": "",
       "order": 3,
-      "created_at": "2026-01-01T10:00:00Z",
-      "updated_at": "2026-01-01T10:00:00Z"
+      "created_at": "2026-06-09T10:00:00Z",
+      "updated_at": "2026-06-09T10:00:00Z"
     }
   },
   {
@@ -43,10 +43,10 @@
     "pk": 1,
     "fields": {
       "direction": 1,
-      "title": "Группа импульсных ускорителей",
-      "slug": "impulse-accelerators",
-      "description": "Разработка высоковольтных импульсных ускорителей электронов",
-      "created_at": "2026-01-01T10:00:00Z"
+      "title": "Генерация сильноточных пучков",
+      "slug": "high-current-beams",
+      "description": "Исследование динамики формирования и транспорта сильноточных электронных пучков.",
+      "created_at": "2026-06-09T10:00:00Z"
     }
   },
   {
@@ -54,10 +54,10 @@
     "pk": 2,
     "fields": {
       "direction": 1,
-      "title": "Группа ионных источников",
-      "slug": "ion-sources",
-      "description": "Создание источников ионов для пучковых технологий",
-      "created_at": "2026-01-01T10:00:00Z"
+      "title": "Ускорительная техника",
+      "slug": "accelerator-engineering",
+      "description": "Разработка компактных ускорителей для промышленных и медицинских применений.",
+      "created_at": "2026-06-09T10:00:00Z"
     }
   },
   {
@@ -65,10 +65,10 @@
     "pk": 3,
     "fields": {
       "direction": 2,
-      "title": "Группа искровых разрядов",
-      "slug": "spark-discharge",
-      "description": "Исследование искровых разрядов в газах и жидкостях",
-      "created_at": "2026-01-01T10:00:00Z"
+      "title": "Искровые разряды",
+      "slug": "spark-discharges",
+      "description": "Физика высоковольтных искровых разрядов в газах высокого давления.",
+      "created_at": "2026-06-09T10:00:00Z"
     }
   },
   {
@@ -76,10 +76,10 @@
     "pk": 4,
     "fields": {
       "direction": 2,
-      "title": "Группа дуговых разрядов",
-      "slug": "arc-discharge",
-      "description": "Разработка дуговых источников плазмы",
-      "created_at": "2026-01-01T10:00:00Z"
+      "title": "Барьерный разряд",
+      "slug": "barrier-discharge",
+      "description": "Технологии получения неравновесной плазмы в барьерном разряде.",
+      "created_at": "2026-06-09T10:00:00Z"
     }
   },
   {
@@ -87,10 +87,10 @@
     "pk": 5,
     "fields": {
       "direction": 3,
-      "title": "Группа ВЧ плазмы",
-      "slug": "rf-plasma",
-      "description": "Генерация и применение ВЧ плазмы",
-      "created_at": "2026-01-01T10:00:00Z"
+      "title": "Плазменное напыление",
+      "slug": "plasma-spraying",
+      "description": "Нанесение функциональных покрытий методом газотермического напыления.",
+      "created_at": "2026-06-09T10:00:00Z"
     }
   },
   {
@@ -98,10 +98,100 @@
     "pk": 6,
     "fields": {
       "direction": 3,
-      "title": "Группа микроволновой плазмы",
-      "slug": "microwave-plasma",
-      "description": "СВЧ генераторы плазмы и их применение",
-      "created_at": "2026-01-01T10:00:00Z"
+      "title": "Плазмохимический синтез",
+      "slug": "plasma-chemical-synthesis",
+      "description": "Получение наноматериалов и тонких пленок в ВЧ-плазме.",
+      "created_at": "2026-06-09T10:00:00Z"
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 1,
+    "fields": {
+      "group": 1,
+      "title": "Диоды с взрывоэмиссионным катодом",
+      "description": "Исследование эмиссионных характеристик графитовых катодов.",
+      "order": 1
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 2,
+    "fields": {
+      "group": 1,
+      "title": "Фокусировка пучков в диодах",
+      "description": "Методы магнитной и электростатической фокусировки.",
+      "order": 2
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 3,
+    "fields": {
+      "group": 2,
+      "title": "Линейные индукционные ускорители",
+      "description": "Разработка модулей LIA для радиационной стерилизации.",
+      "order": 1
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 4,
+    "fields": {
+      "group": 3,
+      "title": "Наносекундные разряды",
+      "description": "Динамика стримеров в наносекундном диапазоне.",
+      "order": 1
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 5,
+    "fields": {
+      "group": 3,
+      "title": "Разряды в воде",
+      "description": "Электрогидравлический эффект и очистка жидкостей.",
+      "order": 2
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 6,
+    "fields": {
+      "group": 4,
+      "title": "Озонирование воздуха",
+      "description": "Энергоэффективные источники озона на базе ДБР.",
+      "order": 1
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 7,
+    "fields": {
+      "group": 5,
+      "title": "Термобарьерные покрытия",
+      "description": "Плазменное напыление керамики для ГТД.",
+      "order": 1
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 8,
+    "fields": {
+      "group": 5,
+      "title": "Износостойкие покрытия",
+      "description": "Карбиды вольфрама и хрома для машиностроения.",
+      "order": 2
+    }
+  },
+  {
+    "model": "research.researchtopic",
+    "pk": 9,
+    "fields": {
+      "group": 6,
+      "title": "Синтез углеродных нанотрубок",
+      "description": "Каталитическое осаждение из газовой фазы в плазме.",
+      "order": 1
     }
   }
 ]

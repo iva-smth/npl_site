@@ -11,6 +11,7 @@ from team.views import EmployeeViewSet
 from equipment.views import EquipmentViewSet
 from equipment.views import EquipmentViewSet, EquipmentCategoryViewSet # Добавил CategoryViewSet
 from publications.views import PublicationViewSet
+from core.views import home_view
 
 router = DefaultRouter()
 router.register(r'directions', ResearchDirectionViewSet, basename='direction')
@@ -22,6 +23,8 @@ router.register(r'publications', PublicationViewSet, basename='publication')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/home/', home_view, name='home_api_v1'), 
+    
     path('api/v1/', include(router.urls)), # Все API будут по адресу /api/v1/...
     path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/v1/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

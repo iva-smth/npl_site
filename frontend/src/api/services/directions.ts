@@ -1,16 +1,16 @@
-// src/api/services/directions.ts
-import { apiClient } from '../client'; // Используем ваш настроенный клиент с токенами
-import type { ResearchDirection, ResearchGroup } from '../../types';
+import { apiClient } from '../client';
+import type { ResearchDirection, ResearchGroup, ResearchGroupDetail } from '../../types';
 import type { PaginatedResponse } from '../../types/api';
 
 export const directionsApi = {
-  // Явно указываем, что возвращается PaginatedResponse<ResearchDirection>
-  getAll: () => 
+  getAll: () =>
     apiClient.get<PaginatedResponse<ResearchDirection>>('/directions/'),
-  
-  getBySlug: (slug: string) => 
+  getBySlug: (slug: string) =>
     apiClient.get<ResearchDirection>(`/directions/${slug}/`),
-
-  getGroups: () => 
+  getGroups: () =>
     apiClient.get<ResearchGroup[]>('/groups/'),
+  
+  // Новый метод для детальной страницы группы
+  getGroupBySlug: (slug: string) =>
+    apiClient.get<ResearchGroupDetail>(`/groups/${slug}/`),
 };

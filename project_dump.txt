@@ -588,11 +588,10 @@ class Keyword(models.Model):
 from rest_framework import serializers
 from .models import SiteSettings, Keyword
 
-
 class SiteSettingsSerializer(serializers.ModelSerializer):
     """Сериализатор для настроек сайта"""
     logo_url = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = SiteSettings
         fields = [
@@ -601,13 +600,12 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             'social_vk', 'social_telegram', 'updated_at'
         ]
         read_only_fields = ['updated_at']
-    
+
     def get_logo_url(self, obj):
         request = self.context.get('request')
         if obj.logo and request:
             return request.build_absolute_uri(obj.logo.url)
         return obj.logo.url if obj.logo else None
-
 
 class KeywordSerializer(serializers.ModelSerializer):
     """Сериализатор для ключевых слов"""
@@ -639,29 +637,40 @@ urlpatterns = [
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from research.models import ResearchDirection
 from publications.models import Publication
 from team.models import Employee
+from core.models import Keyword
+from research.serializers import ResearchDirectionSerializer
+from publications.serializers import PublicationListSerializer
+from core.serializers import KeywordSerializer
 
 @api_view(['GET'])
 def home_view(request):
-    """Главная страница API с общей статистикой"""
+    """Главная страница API с данными для отображения"""
+    
+    # 1. Получаем направления для слайдера
+    directions = ResearchDirection.objects.all()
+    directions_serializer = ResearchDirectionSerializer(directions, many=True, context={'request': request})
+    
+    # 2. Получаем последние 5 публикаций
+    latest_publications = Publication.objects.select_related('direction').prefetch_related('authors_employees').order_by('-year', '-created_at')[:5]
+    pubs_serializer = PublicationListSerializer(latest_publications, many=True, context={'request': request})
+    
+    # 3. Получаем топ-20 ключевых слов для облака компетенций
+    top_keywords = Keyword.objects.order_by('-count')[:20]
+    keywords_serializer = KeywordSerializer(top_keywords, many=True)
+
     return Response({
         'message': 'NPL IPETT TPU API',
-        'version': '1.0.0',
-        'documentation': request.build_absolute_uri('/api/v1/swagger-ui/'),
         'stats': {
             'directions': ResearchDirection.objects.count(),
             'publications': Publication.objects.count(),
             'employees': Employee.objects.count(),
         },
-        'endpoints': {
-            'directions': request.build_absolute_uri('/api/v1/directions/'),
-            'employees': request.build_absolute_uri('/api/v1/employees/'),
-            'publications': request.build_absolute_uri('/api/v1/publications/'),
-            'equipment': request.build_absolute_uri('/api/v1/equipment/'),
-        }
+        'slider_directions': directions_serializer.data,
+        'latest_publications': pubs_serializer.data,
+        'top_keywords': keywords_serializer.data,
     })
 
 
@@ -1124,12 +1133,12 @@ class ResearchConfig(AppConfig):
 📄 Файл: research\models.py
 ============================================================
 
+# research/models.py
 from django.db import models
 from django.utils.text import slugify
 
-
 class ResearchDirection(models.Model):
-    """Направления 1-го уровня (Импульсно-пучковые, Электроразрядные, Плазменные)"""
+    """Направления 1-го уровня"""
     title = models.CharField("Название направления", max_length=200)
     slug = models.SlugField("URL-метка", unique=True, blank=True)
     description = models.TextField("Описание направления")
@@ -1153,7 +1162,7 @@ class ResearchDirection(models.Model):
 
 
 class ResearchGroup(models.Model):
-    """Рабочие группы 2-го уровня (подразделения внутри направлений)"""
+    """Рабочие группы 2-го уровня"""
     direction = models.ForeignKey(
         ResearchDirection,
         on_delete=models.CASCADE,
@@ -1161,23 +1170,55 @@ class ResearchGroup(models.Model):
         verbose_name="Направление"
     )
     title = models.CharField("Название группы", max_length=200)
-    slug = models.SlugField("URL-метка", unique=True, blank=True)
+    slug = models.SlugField("URL-метка", blank=True)
     description = models.TextField("Описание группы")
+    order = models.PositiveIntegerField("Порядок отображения", default=0) # ДОБАВЛЕНО
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)
 
     class Meta:
         verbose_name = "Рабочая группа"
         verbose_name_plural = "Рабочие группы"
-        ordering = ['direction', 'title']
+        ordering = ['order', 'title']
+        unique_together = ('direction', 'slug') # ИЗМЕНЕНО: уникальность в рамках направления
 
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title)
-            self.slug = f"{base_slug}"
+            # Генерируем уникальный slug в рамках направления
+            slug = base_slug
+            counter = 1
+            while ResearchGroup.objects.filter(
+                direction=self.direction, 
+                slug=slug
+            ).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.direction.title} — {self.title}"
+
+
+class ResearchTopic(models.Model): # ДОБАВЛЕНА МОДЕЛЬ
+    """Темы/проекты исследований внутри рабочей группы"""
+    group = models.ForeignKey(
+        ResearchGroup,
+        on_delete=models.CASCADE,
+        related_name='topics',
+        verbose_name="Рабочая группа"
+    )
+    title = models.CharField("Название темы", max_length=300)
+    description = models.TextField("Описание", blank=True)
+    order = models.PositiveIntegerField("Порядок отображения", default=0)
+
+    class Meta:
+        verbose_name = "Тема исследования"
+        verbose_name_plural = "Темы исследований"
+        ordering = ['order', 'title']
+
+    def __str__(self):
+        return self.title
 
 
 
@@ -1185,37 +1226,87 @@ class ResearchGroup(models.Model):
 📄 Файл: research\serializers.py
 ============================================================
 
-from rest_framework import serializers
-from .models import ResearchDirection, ResearchGroup
+# research/serializers.py
 
+from rest_framework import serializers
+from .models import ResearchDirection, ResearchGroup, ResearchTopic
+from team.serializers import EmployeeSerializer # Импортируем существующий сериализатор сотрудника
+from equipment.serializers import EquipmentSerializer # Импортируем существующий сериализатор оборудования
+
+class ResearchTopicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResearchTopic
+        fields = ['id', 'title', 'description']
 
 class ResearchGroupSerializer(serializers.ModelSerializer):
-    """Сериализатор для рабочих групп"""
+    """Базовый сериализатор для списка рабочих групп"""
     class Meta:
         model = ResearchGroup
         fields = ['id', 'title', 'slug', 'description', 'created_at']
         read_only_fields = ['slug', 'created_at']
 
+class ResearchGroupDetailSerializer(serializers.ModelSerializer):
+    """Детальный сериализатор для страницы конкретной группы"""
+    direction_title = serializers.CharField(source='direction.title', read_only=True)
+    topics = ResearchTopicSerializer(many=True, read_only=True)
+    employees = serializers.SerializerMethodField()
+    direction_equipment = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ResearchGroup
+        fields = [
+            'id', 'title', 'slug', 'description',
+            'direction', 'direction_title',
+            'topics', 'employees', 'direction_equipment',
+            'created_at'
+        ]
+
+    def get_employees(self, obj):
+        qs = obj.employees.select_related('position').order_by(
+            'position__order', 'full_name'
+        )
+        return EmployeeSerializer(qs, many=True, context=self.context).data
+
+    def get_direction_equipment(self, obj):
+        qs = obj.direction.equipment.all().order_by('title')
+        return EquipmentSerializer(qs, many=True, context=self.context).data
 
 class ResearchDirectionSerializer(serializers.ModelSerializer):
-    """Сериализатор для направлений исследований"""
     groups = ResearchGroupSerializer(many=True, read_only=True)
     image_url = serializers.SerializerMethodField()
     
+    # Новые поля для главных сотрудников и оборудования
+    key_employees = serializers.SerializerMethodField()
+    featured_equipment = serializers.SerializerMethodField()
+
     class Meta:
         model = ResearchDirection
         fields = [
             'id', 'title', 'slug', 'description',
             'image', 'image_url', 'order', 'groups',
+            'key_employees', 'featured_equipment', # Добавляем новые поля
             'created_at', 'updated_at'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']
-    
+
     def get_image_url(self, obj):
         request = self.context.get('request')
         if obj.image and request:
             return request.build_absolute_uri(obj.image.url)
         return obj.image.url if obj.image else None
+
+    def get_key_employees(self, obj):
+        """Возвращает топ-4 сотрудников направления (руководители и ведущие специалисты)"""
+        # Берем сотрудников, сортируем по должности (order) и имени, берем первых 4
+        employees = obj.employees.select_related('position').order_by(
+            'position__order', 'full_name'
+        )[:4]
+        return EmployeeSerializer(employees, many=True, context=self.context).data
+
+    def get_featured_equipment(self, obj):
+        """Возвращает топ-6 единиц оборудования направления"""
+        equipment = obj.equipment.all().order_by('title')[:6]
+        return EquipmentSerializer(equipment, many=True, context=self.context).data
 
 
 
@@ -1223,20 +1314,37 @@ class ResearchDirectionSerializer(serializers.ModelSerializer):
 📄 Файл: research\views.py
 ============================================================
 
+# research/views.py
 from rest_framework import viewsets
 from .models import ResearchDirection, ResearchGroup
-from .serializers import ResearchDirectionSerializer, ResearchGroupSerializer
+from .serializers import (
+    ResearchDirectionSerializer, 
+    ResearchGroupSerializer, 
+    ResearchGroupDetailSerializer # <-- Импорт нового сериализатора
+)
 
 class ResearchDirectionViewSet(viewsets.ReadOnlyModelViewSet):
-    """Только чтение: список направлений и детали"""
     queryset = ResearchDirection.objects.all().order_by('order')
     serializer_class = ResearchDirectionSerializer
-    lookup_field = 'slug' # Ищем по slug, а не по ID
+    lookup_field = 'slug'
 
 class ResearchGroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ResearchGroup.objects.all()
-    serializer_class = ResearchGroupSerializer
     lookup_field = 'slug'
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return ResearchGroupDetailSerializer
+        return ResearchGroupSerializer
+    
+    def get_queryset(self):
+        # Оптимизация: загружаем связанные данные одним запросом
+        return ResearchGroup.objects.select_related(
+            'direction'
+        ).prefetch_related(
+            'topics', 
+            'employees__position' # Загружаем должности сотрудников
+        )
 
 
 
