@@ -4,41 +4,18 @@ import { useParams, Link } from 'react-router-dom';
 import { directionsApi } from '../../api/services/directions';
 import { GroupCard } from '../../components/GroupCard';
 import { EmployeeCard } from '../../components/EmployeeCard';
-import type { ResearchDirection, Employee, Equipment, ResearchGroup } from '../../types';
-
-// Расширенные типы с дополнительными полями
-interface ExtendedEmployee extends Employee {
-  is_head?: boolean;
-  role?: string;
-}
-
-interface ExtendedResearchGroup extends Omit<ResearchGroup, 'head'> {
-  head?: ExtendedEmployee | null;
-}
-
-interface ExtendedResearchDirection extends Omit<ResearchDirection, 'key_employees' | 'groups'> {
-  key_employees?: ExtendedEmployee[];
-  featured_equipment?: Equipment[];
-  groups?: ExtendedResearchGroup[];
-}
-
-interface ExtendedResearchDirection extends Omit<ResearchDirection, 'head' | 'key_employees' | 'groups'> {
-  head?: ExtendedEmployee | null;
-  key_employees?: ExtendedEmployee[];
-  featured_equipment?: Equipment[];
-  groups?: ExtendedResearchGroup[];
-}
+import type { ResearchDirection, Employee, ResearchGroup } from '../../types';
 
 export function DirectionPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [direction, setDirection] = useState<ExtendedResearchDirection | null>(null);
+  const [direction, setDirection] = useState<ResearchDirection | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!slug) return;
     setLoading(true);
     directionsApi.getBySlug(slug)
-      .then(res => setDirection(res.data as ExtendedResearchDirection)) // <-- Явное приведение
+      .then(res => setDirection(res.data))
       .catch(err => console.error('Ошибка загрузки направления:', err))
       .finally(() => setLoading(false));
   }, [slug]);
@@ -62,14 +39,12 @@ export function DirectionPage() {
     );
   }
 
-  const keyEmployees = direction.key_employees || [];
-  const featuredEquipment = direction.featured_equipment || [];
-  
-  // Выделяем главного сотрудника направления
-  const directionHead = direction.head || keyEmployees.find(emp => emp.is_head || emp.role === 'head');
-  
-  // Остальные сотрудники (исключая руководителя)
+  const directionHead = direction?.head || null;
+  const keyEmployees = direction?.key_employees || [];
+  const featuredEquipment = direction?.featured_equipment || [];
+
   const regularEmployees = keyEmployees.filter(emp => emp.id !== directionHead?.id);
+
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
@@ -112,7 +87,7 @@ export function DirectionPage() {
             Руководитель направления
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <EmployeeCard employee={directionHead} />
+            <EmployeeCard employee={directionHead as Employee} />
           </div>
         </section>
       )}

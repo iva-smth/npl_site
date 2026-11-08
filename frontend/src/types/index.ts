@@ -7,11 +7,12 @@ export interface ResearchDirection {
   description: string;
   image_url: string | null;
   order: number;
-  groups: ResearchGroup[]; // Здесь используем базовый ResearchGroup для списка
+  groups: ResearchGroup[];
   created_at: string;
   updated_at: string;
   key_employees?: Employee[];
   featured_equipment?: Equipment[];
+  head?: EmployeeHead | null;  // <-- НОВОЕ ПОЛЕ
 }
 
 export interface ResearchGroup {
@@ -57,6 +58,13 @@ export interface Employee {
     direction_title: string | null;
     group_title: string | null;
     is_public_contact: boolean;
+}
+
+export interface EmployeeHead {
+  id: number;
+  full_name: string;
+  position_title: string | null;
+  photo_url: string | null;
 }
 
 export interface EmployeeDetail extends Omit<Employee, 'bio' | 'email' | 'phone'> {

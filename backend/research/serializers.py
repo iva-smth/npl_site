@@ -65,17 +65,17 @@ class ResearchGroupDetailSerializer(serializers.ModelSerializer):
 class ResearchDirectionSerializer(serializers.ModelSerializer):
     groups = ResearchGroupSerializer(many=True, read_only=True)
     image_url = serializers.SerializerMethodField()
-    
-    # Новые поля для главных сотрудников и оборудования
     key_employees = serializers.SerializerMethodField()
     featured_equipment = serializers.SerializerMethodField()
+    head = serializers.SerializerMethodField()  # <-- НОВОЕ ПОЛЕ
 
     class Meta:
         model = ResearchDirection
         fields = [
             'id', 'title', 'slug', 'description',
             'image', 'image_url', 'order', 'groups',
-            'key_employees', 'featured_equipment', # Добавляем новые поля
+            'key_employees', 'featured_equipment',
+            'head',  # <-- добавляем
             'created_at', 'updated_at'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']
@@ -86,15 +86,30 @@ class ResearchDirectionSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.image.url)
         return obj.image.url if obj.image else None
 
+    def get_head(self, obj):
+        """Возвращает главного сотрудника направления (с наименьшим order должности)"""
+        head_employee = obj.employees.select_related('position').filter(
+            position__isnull=False
+        ).order_by(
+            'position__order',
+            'full_name'
+        ).first()
+        
+        if head_employee:
+            return {
+                'id': head_employee.id,
+                'full_name': head_employee.full_name,
+                'position_title': head_employee.position.title if head_employee.position else None,
+                'photo_url': head_employee.photo.url if head_employee.photo else None,
+            }
+        return None
+
     def get_key_employees(self, obj):
-        """Возвращает топ-4 сотрудников направления (руководители и ведущие специалисты)"""
-        # Берем сотрудников, сортируем по должности (order) и имени, берем первых 4
         employees = obj.employees.select_related('position').order_by(
             'position__order', 'full_name'
         )[:4]
         return EmployeeSerializer(employees, many=True, context=self.context).data
 
     def get_featured_equipment(self, obj):
-        """Возвращает топ-6 единиц оборудования направления"""
         equipment = obj.equipment.all().order_by('title')[:6]
         return EquipmentSerializer(equipment, many=True, context=self.context).data
