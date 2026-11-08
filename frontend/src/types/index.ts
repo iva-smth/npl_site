@@ -20,6 +20,7 @@ export interface ResearchGroup {
   slug: string;
   description: string;
   created_at: string;
+  head: Employee | null;
   // Поля для детальной страницы (могут быть undefined в списке)
   direction?: number;
   direction_title?: string;
@@ -33,14 +34,17 @@ export interface ResearchTopic {
   title: string;
   description: string;
 }
+export interface Position {
+  id: number;
+  title: string;
+  is_leadership?: boolean; // Если вы решите отдавать это поле
+}
 
 export interface Employee {
   id: number;
   full_name: string;
   photo_url: string | null;
-  position_title: string | null;
-  position_order: number | null;
-  position: number | null;
+  position: Position;
   bio?: string;
   email: string | null;
   phone: string | null;

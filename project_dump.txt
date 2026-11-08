@@ -484,6 +484,7 @@ from team.views import EmployeeViewSet
 from equipment.views import EquipmentViewSet
 from equipment.views import EquipmentViewSet, EquipmentCategoryViewSet # Добавил CategoryViewSet
 from publications.views import PublicationViewSet
+from core.views import home_view
 
 router = DefaultRouter()
 router.register(r'directions', ResearchDirectionViewSet, basename='direction')
@@ -495,6 +496,8 @@ router.register(r'publications', PublicationViewSet, basename='publication')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/home/', home_view, name='home_api_v1'), 
+    
     path('api/v1/', include(router.urls)), # Все API будут по адресу /api/v1/...
     path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/v1/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
@@ -798,25 +801,24 @@ class Equipment(models.Model):
 📄 Файл: equipment\serializers.py
 ============================================================
 
-from rest_framework import serializers
+# equipment/serializers.py
+
+from rest_framework import serializers  # <--- ДОБАВИТЬ ЭТУ СТРОКУ
 from .models import Equipment, EquipmentCategory
 
-
 class EquipmentCategorySerializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField() # Или вложенный сериализатор
+    children = serializers.SerializerMethodField() 
 
     class Meta:
         model = EquipmentCategory
         fields = ['id', 'title', 'slug', 'parent', 'children']
 
     def get_children(self, obj):
-        # Логика получения детей
         children = EquipmentCategory.objects.filter(parent=obj)
         if children:
-            # Рекурсивно сериализуем детей
             return EquipmentCategorySerializer(children, many=True).data
         return []
-    
+
 class EquipmentSerializer(serializers.ModelSerializer):
     """Сериализатор для оборудования"""
     category = EquipmentCategorySerializer(read_only=True)
@@ -827,7 +829,7 @@ class EquipmentSerializer(serializers.ModelSerializer):
         required=False
     )
     image_url = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Equipment
         fields = [
@@ -836,7 +838,7 @@ class EquipmentSerializer(serializers.ModelSerializer):
             'direction', 'related_equipment', 'created_at', 'updated_at'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']
-    
+
     def get_image_url(self, obj):
         request = self.context.get('request')
         if obj.image and request:

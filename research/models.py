@@ -40,6 +40,12 @@ class ResearchGroup(models.Model):
     order = models.PositiveIntegerField("Порядок отображения", default=0) # ДОБАВЛЕНО
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)
 
+    members = models.ManyToManyField(
+        'team.Employee',
+        blank=True,
+        related_name='research_groups'
+    )
+
     class Meta:
         verbose_name = "Рабочая группа"
         verbose_name_plural = "Рабочие группы"
@@ -64,6 +70,21 @@ class ResearchGroup(models.Model):
     def __str__(self):
         return f"{self.direction.title} — {self.title}"
 
+    @property
+    def head(self):
+        """
+        Автоматически возвращает главного сотрудника группы 
+        на основе его должности.
+        """
+        # Ищем сотрудников группы, у которых должность является руководящей
+        head_employee = self.members.filter(
+            position__is_leadership=True
+        ).order_by(
+            'position__order',  # Сначала по порядку должности
+            'full_name'         # Потом по алфавиту
+        ).first()
+        
+        return head_employee
 
 class ResearchTopic(models.Model): # ДОБАВЛЕНА МОДЕЛЬ
     """Темы/проекты исследований внутри рабочей группы"""

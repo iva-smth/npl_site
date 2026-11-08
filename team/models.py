@@ -2,14 +2,18 @@ from django.db import models
 
 
 class Position(models.Model):
-    """Должности сотрудников"""
     title = models.CharField("Название должности", max_length=100)
-    order = models.PositiveIntegerField("Порядок отображения", default=0)
+    # Добавляем поле для определения руководящей роли
+    is_leadership = models.BooleanField(
+        "Руководящая должность", 
+        default=False,
+        help_text="Отметьте, если эта должность подразумевает руководство группой/лабораторией"
+    )
+    # Опционально: порядок сортировки (чем меньше число, тем выше статус)
+    order = models.PositiveSmallIntegerField("Порядок", default=10) 
 
     class Meta:
-        verbose_name = "Должность"
-        verbose_name_plural = "Должности"
-        ordering = ['order']
+        ordering = ['order', 'title']
 
     def __str__(self):
         return self.title

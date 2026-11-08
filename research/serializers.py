@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 from .models import ResearchDirection, ResearchGroup, ResearchTopic
+from team.models import Employee
 from team.serializers import EmployeeSerializer # Импортируем существующий сериализатор сотрудника
 from equipment.serializers import EquipmentSerializer # Импортируем существующий сериализатор оборудования
 
@@ -10,13 +11,29 @@ class ResearchTopicSerializer(serializers.ModelSerializer):
         model = ResearchTopic
         fields = ['id', 'title', 'description']
 
+class ResearchGroupHeadSerializer(serializers.ModelSerializer):
+    """Упрощенный сериализатор только для данных руководителя."""
+    position_title = serializers.CharField(
+        source='position.title', 
+        read_only=True
+    )
+    photo_url = serializers.ImageField(read_only=True)
+
+    class Meta:
+        model = Employee # Или укажите вашу модель сотрудника
+        fields = ['id', 'full_name', 'photo_url', 'position_title', 'slug']
+
 class ResearchGroupSerializer(serializers.ModelSerializer):
-    """Базовый сериализатор для списка рабочих групп"""
+    # Поле head теперь автоматически подтягивает данные через свойство модели
+    head = ResearchGroupHeadSerializer(read_only=True)
+    members_count = serializers.IntegerField(source='members.count', read_only=True)
+
     class Meta:
         model = ResearchGroup
-        fields = ['id', 'title', 'slug', 'description', 'created_at']
-        read_only_fields = ['slug', 'created_at']
-
+        fields = [
+            'id', 'title', 'slug', 'description', 
+            'direction', 'head', 'members_count'
+        ]
 class ResearchGroupDetailSerializer(serializers.ModelSerializer):
     """Детальный сериализатор для страницы конкретной группы"""
     direction_title = serializers.CharField(source='direction.title', read_only=True)
