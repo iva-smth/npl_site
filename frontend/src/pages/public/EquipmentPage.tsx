@@ -4,22 +4,6 @@ import { Link } from 'react-router-dom';
 import { apiClient } from '../../api/client';
 import type { Equipment, EquipmentCategory } from '../../types';
 
-// Вспомогательная функция для сбора всех ID категории и её детей
-const getAllCategoryIds = (category: EquipmentCategory | null, allCategories: EquipmentCategory[]): number[] => {
-  if (!category) return [];
-  
-  const ids = [category.id];
-  
-  // Ищем детей в плоском списке (так как API может отдавать дерево, но нам удобно искать по ссылке)
-  // Но так как у нас рекурсивная структура в state, можно искать прямо в children
-  if (category.children && category.children.length > 0) {
-    category.children.forEach(child => {
-      ids.push(...getAllCategoryIds(child, allCategories));
-    });
-  }
-  
-  return ids;
-};
 
 interface CategoryTreeProps {
   categories: EquipmentCategory[];
@@ -57,86 +41,52 @@ function CategoryTree({ categories, onSelect, selectedId }: CategoryTreeProps) {
 }
 
 export function EquipmentPage() {
-  const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
-  const [categories, setCategories] = useState<EquipmentCategory[]>([]);
-  
-  const [loading, setLoading] = useState(true);
-  // null здесь означает режим "Показать всё оборудование"
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+    const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
+    const [categories, setCategories] = useState<EquipmentCategory[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. Загружаем корневые категории при монтировании
-  useEffect(() => {
-    setLoading(true);
-    apiClient.get<EquipmentCategory[]>('/equipment-categories/')
-      .then((response) => {
-        if (Array.isArray(response.data)) {
-          setCategories(response.data);
-        } else if (response.data && typeof response.data === 'object' && 'results' in response.data) {
-           setCategories((response.data as any).results);
+    // 1. Загрузка категорий (без изменений)
+    useEffect(() => {
+        setLoading(true);
+        apiClient.get<EquipmentCategory[]>('/equipment-categories/')
+            .then((response) => {
+                if (Array.isArray(response.data)) {
+                    setCategories(response.data);
+                } else if (response.data && typeof response.data === 'object' && 'results' in response.data) {
+                    setCategories((response.data as any).results);
+                }
+            })
+            .catch(err => console.error("Ошибка загрузки категорий", err))
+            .finally(() => setLoading(false));
+    }, []);
+
+    // 2. Загрузка оборудования (УПРОЩЕНО)
+    useEffect(() => {
+        setLoading(true);
+        let params: any = {};
+        
+        if (searchQuery) {
+            params.search = searchQuery;
+        } else if (selectedCategoryId !== null) {
+            // ИЗМЕНЕНИЕ: просто передаем ID категории. 
+            // Бэкенд сам найдет все подкатегории!
+            params.category = selectedCategoryId;
         }
-      })
-      .catch(err => console.error("Ошибка загрузки категорий", err))
-      .finally(() => setLoading(false));
-  }, []);
 
-  // 2. Загружаем оборудование при изменении фильтров
-  useEffect(() => {
-    setLoading(true);
-    
-    let params: any = {};
-    
-    if (searchQuery) {
-      params.search = searchQuery;
-    } else if (selectedCategoryId !== undefined) {
-      // Если выбрана категория (не null), собираем все ID (родитель + дети)
-      if (selectedCategoryId !== null) {
-        // Находим объект категории в дереве, чтобы получить детей
-        // Для простоты поиска в рекурсивном дереве можно использовать небольшую вспомогательную функцию поиска,
-        // но так как мы храним дерево в state, мы можем передать всё дерево в getAllCategoryIds, 
-        // если найдем корень. 
-        
-        // Упрощенный вариант: так как API отдает дерево, нам нужно найти категорию по ID в этом дереве.
-        // Но проще сделать так: если выбран ID, мы просто отправляем его. 
-        // А БЭкенд должен сам понять, что это родитель? Нет, DRF filter так не умеет из коробки без кастомного фильтра.
-        
-        // ПОЭТОМУ: Мы используем кастомный параметр category__in, который мы добавили в views.py
-        // Нам нужно собрать список ID.
-        
-        // Функция поиска категории в дереве по ID
-        const findCategoryById = (cats: EquipmentCategory[], id: number): EquipmentCategory | null => {
-          for (const cat of cats) {
-            if (cat.id === id) return cat;
-            if (cat.children) {
-              const found = findCategoryById(cat.children, id);
-              if (found) return found;
-            }
-          }
-          return null;
-        };
-
-        const targetCat = findCategoryById(categories, selectedCategoryId);
-        if (targetCat) {
-          const allIds = getAllCategoryIds(targetCat, categories);
-          params.category__in = allIds.join(','); // Передаем как строку "1,2,3"
-        } else {
-          params.category = selectedCategoryId; // Фолбэк, если вдруг не нашли в дереве (например, баг)
-        }
-      }
-      // Если selectedCategoryId === null, то params остается пустым -> загружаем ВСЕ оборудование
-    }
-
-    apiClient.get<{ results: Equipment[] }>('/equipment/', { params })
-      .then((response) => {
-        const data = response.data?.results || [];
-        setEquipmentList(Array.isArray(data) ? data : []);
-      })
-      .catch((error) => {
-        console.error("Ошибка загрузки оборудования:", error);
-        setEquipmentList([]);
-      })
-      .finally(() => setLoading(false));
-  }, [selectedCategoryId, searchQuery, categories]); // Добавил categories в зависимости, т.к. используем его для поиска детей
+        apiClient.get<{ results: Equipment[] }>('/equipment/', { params })
+            .then((response) => {
+                const data = response.data?.results || [];
+                setEquipmentList(Array.isArray(data) ? data : []);
+            })
+            .catch((error) => {
+                console.error("Ошибка загрузки оборудования:", error);
+                setEquipmentList([]);
+            })
+            .finally(() => setLoading(false));
+            
+    }, [selectedCategoryId, searchQuery]); // Убрали categories из зависимостей, т.к. они больше не нужны для поиска
 
   const handleCategorySelect = (id: number | null) => {
     setSelectedCategoryId(id);

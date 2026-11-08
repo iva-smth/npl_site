@@ -8,7 +8,6 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 # Импортируем роутеры из приложений
 from research.views import ResearchDirectionViewSet, ResearchGroupViewSet
 from team.views import EmployeeViewSet
-from equipment.views import EquipmentViewSet
 from equipment.views import EquipmentViewSet, EquipmentCategoryViewSet # Добавил CategoryViewSet
 from publications.views import PublicationViewSet
 from core.views import home_view

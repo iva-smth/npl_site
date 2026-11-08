@@ -193,6 +193,9 @@ cython_debug/
 .idea/
 *.swp
 *.swo
+compile-project.py
+backend_dump.txt
+frontend_dump.txt
 
 # Ruff stuff:
 .ruff_cache/
