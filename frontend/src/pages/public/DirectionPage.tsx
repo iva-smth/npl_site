@@ -8,13 +8,18 @@ import type { ResearchDirection, Employee, Equipment, ResearchGroup } from '../.
 
 // Расширенные типы с дополнительными полями
 interface ExtendedEmployee extends Employee {
-  position_title?: string;
   is_head?: boolean;
   role?: string;
 }
 
 interface ExtendedResearchGroup extends Omit<ResearchGroup, 'head'> {
   head?: ExtendedEmployee | null;
+}
+
+interface ExtendedResearchDirection extends Omit<ResearchDirection, 'key_employees' | 'groups'> {
+  key_employees?: ExtendedEmployee[];
+  featured_equipment?: Equipment[];
+  groups?: ExtendedResearchGroup[];
 }
 
 interface ExtendedResearchDirection extends Omit<ResearchDirection, 'head' | 'key_employees' | 'groups'> {
@@ -33,7 +38,7 @@ export function DirectionPage() {
     if (!slug) return;
     setLoading(true);
     directionsApi.getBySlug(slug)
-      .then(res => setDirection(res.data))
+      .then(res => setDirection(res.data as ExtendedResearchDirection)) // <-- Явное приведение
       .catch(err => console.error('Ошибка загрузки направления:', err))
       .finally(() => setLoading(false));
   }, [slug]);

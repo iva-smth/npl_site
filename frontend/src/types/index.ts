@@ -85,6 +85,8 @@ export interface Equipment {
   image_url: string | null;
   category: EquipmentCategory | null;
   direction: number | null;
+  // Добавлено поле для сопутствующего оборудования
+  related_equipment?: Pick<Equipment, 'id' | 'title' | 'slug' | 'image_url'>[]; 
 }
 
 export interface Publication {
