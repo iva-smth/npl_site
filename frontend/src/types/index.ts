@@ -41,29 +41,31 @@ export interface Position {
 }
 
 export interface Employee {
-  id: number;
-  full_name: string;
-  photo_url: string | null;
-  position: Position;
-  bio?: string;
-  email: string | null;
-  phone: string | null;
-  show_email: boolean;
-  show_phone: boolean;
-  direction: number | null;
-  group: number | null;
-  direction_title: string | null;
-  group_title: string | null;
-  is_public_contact: boolean;
+    id: number;
+    full_name: string;
+    photo_url: string | null;
+    position: number | null;          // ID должности
+    position_title: string | null;    // ← добавлено
+    position_order?: number;          // ← добавлено (опционально)
+    bio?: string;
+    email: string | null;
+    phone: string | null;
+    show_email: boolean;
+    show_phone: boolean;
+    direction: number | null;
+    group: number | null;
+    direction_title: string | null;
+    group_title: string | null;
+    is_public_contact: boolean;
 }
 
 export interface EmployeeDetail extends Omit<Employee, 'bio' | 'email' | 'phone'> {
-  bio: string;
-  email: string | null;
-  phone: string | null;
-  show_email: boolean;
-  show_phone: boolean;
-  recent_publications: PublicationList[];
+    bio: string;
+    email: string | null;
+    phone: string | null;
+    show_email: boolean;
+    show_phone: boolean;
+    recent_publications: PublicationList[];
 }
 
 export interface EquipmentCategory {

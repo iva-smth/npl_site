@@ -37,9 +37,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.photo.url)
         return obj.photo.url if obj.photo else None
 
-    def get_position_label(self, obj):
-        return obj.get_position_display()
-
     def get_email(self, obj):
         return obj.email if obj.show_email else None
 
@@ -69,9 +66,6 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
         if obj.photo and request:
             return request.build_absolute_uri(obj.photo.url)
         return obj.photo.url if obj.photo else None
-
-    def get_position_label(self, obj):
-        return obj.get_position_display()
 
     def get_email(self, obj):
         return obj.email if obj.show_email else None

@@ -12,17 +12,19 @@ class ResearchTopicSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description']
 
 class ResearchGroupHeadSerializer(serializers.ModelSerializer):
-    """Упрощенный сериализатор только для данных руководителя."""
-    position_title = serializers.CharField(
-        source='position.title', 
-        read_only=True
-    )
-    photo_url = serializers.ImageField(read_only=True)
+    position_title = serializers.CharField(source='position.title', read_only=True)
+    photo_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = Employee # Или укажите вашу модель сотрудника
-        fields = ['id', 'full_name', 'photo_url', 'position_title', 'slug']
+        model = Employee
+        fields = ['id', 'full_name', 'photo_url', 'position_title']
 
+    def get_photo_url(self, obj):
+        request = self.context.get('request')
+        if obj.photo and request:
+            return request.build_absolute_uri(obj.photo.url)
+        return obj.photo.url if obj.photo else None
+    
 class ResearchGroupSerializer(serializers.ModelSerializer):
     # Поле head теперь автоматически подтягивает данные через свойство модели
     head = ResearchGroupHeadSerializer(read_only=True)

@@ -37,11 +37,17 @@ class PublicationDetailSerializer(serializers.ModelSerializer):
         return obj.pdf_file.url if obj.pdf_file else None
 
     def get_authors_employees(self, obj):
-        return [
-            {
-                'id': emp.id, 
+        request = self.context.get('request')
+        result = []
+        for emp in obj.authors_employees.all():
+            photo_url = None
+            if emp.photo:
+                photo_url = emp.photo.url
+                if request:
+                    photo_url = request.build_absolute_uri(photo_url)
+            result.append({
+                'id': emp.id,
                 'full_name': emp.full_name,
-                'photo_url': emp.photo.url if emp.photo else None # Упрощенно
-            }
-            for emp in obj.authors_employees.all()
-        ]
+                'photo_url': photo_url,
+            })
+        return result

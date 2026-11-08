@@ -1,4 +1,3 @@
-from rest_framework import viewsets
 from .models import Equipment
 from .serializers import EquipmentSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -26,16 +25,32 @@ class EquipmentViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['category', 'direction']
+    filterset_fields = ['direction']
     search_fields = ['title', 'description']
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        category_ids = self.request.query_params.get('category__in', None)
-        if category_ids:
-            ids_list = [int(id) for id in category_ids.split(',')]
-            queryset = queryset.filter(category_id__in=ids_list)
+        
+        # Получаем ID категории из параметров запроса (например, ?category=5)
+        category_id = self.request.query_params.get('category', None)
+        
+        if category_id:
+            # Вспомогательная рекурсивная функция для сбора ID категории и всех её детей
+            def get_all_descendant_ids(cat_id):
+                ids = [cat_id]
+                # Ищем прямых потомков
+                children = EquipmentCategory.objects.filter(parent_id=cat_id)
+                for child in children:
+                    # Рекурсивно добавляем потомков потомков
+                    ids.extend(get_all_descendant_ids(child.id))
+                return ids
+
+            # Фильтруем оборудование по всем найденным ID
+            all_ids = get_all_descendant_ids(int(category_id))
+            queryset = queryset.filter(category_id__in=all_ids)
+            
         return queryset
+
 
     @action(detail=False, methods=['get'])
     def suggestions(self, request):
