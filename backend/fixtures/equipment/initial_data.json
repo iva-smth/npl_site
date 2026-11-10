@@ -2,92 +2,52 @@
   {
     "model": "equipment.equipmentcategory",
     "pk": 1,
-    "fields": {
-      "title": "Источники питания",
-      "slug": "power-sources",
-      "parent": null
-    }
+    "fields": { "title": "Источники питания", "slug": "power-sources", "parent": null }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 2,
-    "fields": {
-      "title": "Высоковольтные источники",
-      "slug": "high-voltage-sources",
-      "parent": 1
-    }
+    "fields": { "title": "Высоковольтные источники", "slug": "high-voltage-sources", "parent": 1 }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 3,
-    "fields": {
-      "title": "Импульсные источники",
-      "slug": "pulse-sources",
-      "parent": 1
-    }
+    "fields": { "title": "Импульсные источники", "slug": "pulse-sources", "parent": 1 }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 4,
-    "fields": {
-      "title": "Диагностическое оборудование",
-      "slug": "diagnostic-equipment",
-      "parent": null
-    }
+    "fields": { "title": "Диагностическое оборудование", "slug": "diagnostic-equipment", "parent": null }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 5,
-    "fields": {
-      "title": "Осциллографы",
-      "slug": "oscilloscopes",
-      "parent": 4
-    }
+    "fields": { "title": "Осциллографы", "slug": "oscilloscopes", "parent": 4 }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 6,
-    "fields": {
-      "title": "Спектрометры",
-      "slug": "spectrometers",
-      "parent": 4
-    }
+    "fields": { "title": "Спектрометры", "slug": "spectrometers", "parent": 4 }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 7,
-    "fields": {
-      "title": "Вакуумное оборудование",
-      "slug": "vacuum-equipment",
-      "parent": null
-    }
+    "fields": { "title": "Вакуумное оборудование", "slug": "vacuum-equipment", "parent": null }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 8,
-    "fields": {
-      "title": "Насосы",
-      "slug": "pumps",
-      "parent": 7
-    }
+    "fields": { "title": "Насосы", "slug": "pumps", "parent": 7 }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 9,
-    "fields": {
-      "title": "Камеры",
-      "slug": "chambers",
-      "parent": 7
-    }
+    "fields": { "title": "Камеры", "slug": "chambers", "parent": 7 }
   },
   {
     "model": "equipment.equipmentcategory",
     "pk": 10,
-    "fields": {
-      "title": "Генераторы плазмы",
-      "slug": "plasma-generators",
-      "parent": null
-    }
+    "fields": { "title": "Генераторы плазмы", "slug": "plasma-generators", "parent": null }
   },
   {
     "model": "equipment.equipment",
@@ -100,6 +60,7 @@
       "image": "equipment/iue1.jpg",
       "category": 3,
       "direction": 1,
+      "group": 2,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -115,6 +76,7 @@
       "image": "equipment/gvi500.jpg",
       "category": 3,
       "direction": 1,
+      "group": 2,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -130,6 +92,7 @@
       "image": "equipment/ion_source.jpg",
       "category": 2,
       "direction": 1,
+      "group": 1,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -145,6 +108,7 @@
       "image": "equipment/oscilloscope.jpg",
       "category": 5,
       "direction": null,
+      "group": null,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -160,6 +124,7 @@
       "image": "equipment/lecroy.jpg",
       "category": 5,
       "direction": null,
+      "group": null,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -175,6 +140,7 @@
       "image": "equipment/spectrometer.jpg",
       "category": 6,
       "direction": 3,
+      "group": 6,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -190,6 +156,7 @@
       "image": "equipment/pfeiffer_pump.jpg",
       "category": 8,
       "direction": null,
+      "group": null,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -205,6 +172,7 @@
       "image": "equipment/edwards_pump.jpg",
       "category": 8,
       "direction": null,
+      "group": null,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -220,6 +188,7 @@
       "image": "equipment/vacuum_chamber.jpg",
       "category": 9,
       "direction": 3,
+      "group": 5,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -235,6 +204,7 @@
       "image": "equipment/rf_generator.jpg",
       "category": 10,
       "direction": 3,
+      "group": 6,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -250,6 +220,7 @@
       "image": "equipment/microwave_generator.jpg",
       "category": 10,
       "direction": 3,
+      "group": 6,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }
@@ -265,6 +236,7 @@
       "image": "equipment/spark_liquid.jpg",
       "category": 2,
       "direction": 2,
+      "group": 3,
       "created_at": "2026-01-01T10:00:00Z",
       "updated_at": "2026-01-01T10:00:00Z"
     }

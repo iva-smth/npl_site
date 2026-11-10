@@ -9,7 +9,6 @@ from research.models import ResearchDirection
 
 
 class EquipmentCategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    """Возвращает дерево категорий (только корни)."""
     serializer_class = EquipmentCategorySerializer
 
     def get_queryset(self):
@@ -23,49 +22,39 @@ class EquipmentViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    # === РАСШИРЕНО: добавили group ===
-    filterset_fields = ['direction', 'group', 'category']
+    # ✅ УБРАЛИ 'category' из filterset_fields, чтобы не конфликтовало с ручной логикой
+    filterset_fields = ['direction', 'group']
     search_fields = ['title', 'description']
     ordering_fields = ['title', 'created_at']
 
     def get_queryset(self):
-        queryset = super().get_queryset().select_related(
-            'category', 'direction', 'group'
-        )
-
-        # Фильтр по категории (с рекурсивным сбором всех подкатегорий)
+        queryset = super().get_queryset().select_related('category', 'direction', 'group')
+        
         category_id = self.request.query_params.get('category', None)
         if category_id:
             def get_all_descendant_ids(cat_id):
                 ids = [cat_id]
-                children = EquipmentCategory.objects.filter(parent_id=cat_id)
-                for child in children:
-                    ids.extend(get_all_descendant_ids(child.id))
+                # Оптимизация: сразу запрашиваем только ID
+                children = EquipmentCategory.objects.filter(parent_id=cat_id).values_list('id', flat=True)
+                for child_id in children:
+                    ids.extend(get_all_descendant_ids(child_id))
                 return ids
 
             all_ids = get_all_descendant_ids(int(category_id))
             queryset = queryset.filter(category_id__in=all_ids)
-
+            
         return queryset
 
     @action(detail=False, methods=['get'])
     def suggestions(self, request):
-        """Список уникальных названий оборудования для автодополнения."""
         query = request.query_params.get('q', '')
         if not query or len(query) < 2:
             return Response([])
-        equipments = Equipment.objects.filter(
-            title__icontains=query
-        ).values_list('title', flat=True).distinct()[:10]
+        equipments = Equipment.objects.filter(title__icontains=query).values_list('title', flat=True).distinct()[:10]
         return Response(list(equipments))
 
-    # === НОВОЕ: эндпоинт с направлениями и их группами для фильтров ===
     @action(detail=False, methods=['get'], url_path='filter-options')
     def filter_options(self, request):
-        """
-        Возвращает список направлений с вложенными группами.
-        Используется фронтендом для построения дерева фильтров.
-        """
         directions = ResearchDirection.objects.prefetch_related('groups').all().order_by('order', 'title')
         data = []
         for d in directions:
