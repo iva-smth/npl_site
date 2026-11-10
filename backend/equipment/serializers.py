@@ -1,10 +1,9 @@
-# equipment/serializers.py
-
-from rest_framework import serializers  # <--- ДОБАВИТЬ ЭТУ СТРОКУ
+from rest_framework import serializers
 from .models import Equipment, EquipmentCategory
 
+
 class EquipmentCategorySerializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField() 
+    children = serializers.SerializerMethodField()
 
     class Meta:
         model = EquipmentCategory
@@ -16,6 +15,23 @@ class EquipmentCategorySerializer(serializers.ModelSerializer):
             return EquipmentCategorySerializer(children, many=True).data
         return []
 
+
+# === НОВЫЕ МИНИМАЛЬНЫЕ СЕРИАЛИЗАТОРЫ ДЛЯ ФИЛЬТРОВ ===
+class EquipmentDirectionMinimalSerializer(serializers.Serializer):
+    """Минимальный сериализатор направления для фильтров оборудования"""
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    slug = serializers.CharField()
+    groups = serializers.ListField()
+
+
+class EquipmentGroupMinimalSerializer(serializers.Serializer):
+    """Минимальный сериализатор группы для фильтров оборудования"""
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    slug = serializers.CharField()
+
+
 class EquipmentSerializer(serializers.ModelSerializer):
     """Сериализатор для оборудования"""
     category = EquipmentCategorySerializer(read_only=True)
@@ -26,13 +42,20 @@ class EquipmentSerializer(serializers.ModelSerializer):
         required=False
     )
     image_url = serializers.SerializerMethodField()
+    # === НОВОЕ: отдаём название группы на фронт ===
+    group_title = serializers.CharField(source='group.title', read_only=True, allow_null=True)
+    direction_title = serializers.CharField(source='direction.title', read_only=True, allow_null=True)
 
     class Meta:
         model = Equipment
         fields = [
             'id', 'title', 'slug', 'description', 'specs',
-            'image', 'image_url', 'category', 'category_id',
-            'direction', 'related_equipment', 'created_at', 'updated_at'
+            'image', 'image_url',
+            'category', 'category_id',
+            'direction', 'direction_title',
+            'group', 'group_title',
+            'related_equipment',
+            'created_at', 'updated_at'
         ]
         read_only_fields = ['slug', 'created_at', 'updated_at']
 

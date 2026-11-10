@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 
+
 class EquipmentCategory(models.Model):
     """Категории оборудования с поддержкой вложенности"""
     title = models.CharField("Название категории", max_length=100)
@@ -25,7 +26,6 @@ class EquipmentCategory(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        # Отображаем путь, например: "Электроника > Осциллографы"
         if self.parent:
             return f"{self.parent} > {self.title}"
         return self.title
@@ -38,7 +38,7 @@ class Equipment(models.Model):
     description = models.TextField("Описание")
     specs = models.TextField("Технические характеристики", blank=True)
     image = models.ImageField("Фото", upload_to='equipment/', blank=True, null=True)
-    
+
     # Связи
     category = models.ForeignKey(
         EquipmentCategory,
@@ -55,13 +55,22 @@ class Equipment(models.Model):
         related_name='equipment',
         verbose_name="Направление"
     )
+    # === НОВОЕ ПОЛЕ: связь с рабочей группой ===
+    group = models.ForeignKey(
+        'research.ResearchGroup',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='equipment',
+        verbose_name="Рабочая группа"
+    )
     related_equipment = models.ManyToManyField(
         'self',
         blank=True,
         symmetrical=True,
         verbose_name="Сопутствующее оборудование"
     )
-    
+
     created_at = models.DateTimeField("Дата добавления", auto_now_add=True)
     updated_at = models.DateTimeField("Дата обновления", auto_now=True)
 

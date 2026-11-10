@@ -85,16 +85,31 @@ export interface EquipmentCategory {
 }
 
 export interface Equipment {
-  id: number;
-  title: string;
-  slug: string;
-  description: string;
-  specs: string;
-  image_url: string | null;
-  category: EquipmentCategory | null;
-  direction: number | null;
-  // Добавлено поле для сопутствующего оборудования
-  related_equipment?: Pick<Equipment, 'id' | 'title' | 'slug' | 'image_url'>[]; 
+    id: number;
+    title: string;
+    slug: string;
+    description: string;
+    specs: string;
+    image_url: string | null;
+    category: EquipmentCategory | null;
+    direction: number | null;
+    direction_title?: string | null;
+    group: number | null;
+    group_title?: string | null;
+    related_equipment?: Pick<Equipment, 'id' | 'title' | 'slug' | 'image_url'>[];
+}
+
+export interface EquipmentGroup {
+    id: number;
+    title: string;
+    slug: string;
+}
+
+export interface EquipmentDirectionWithGroups {
+    id: number;
+    title: string;
+    slug: string;
+    groups: EquipmentGroup[];
 }
 
 export interface Publication {
