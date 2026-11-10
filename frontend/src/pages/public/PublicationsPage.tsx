@@ -51,6 +51,18 @@ export function PublicationsPage() {
     });
   }, [setSearchParams]);
 
+  const handleYearRangeChange = useCallback((from: number | null, to: number | null) => {
+  setSearchParams(prev => {
+    const next = new URLSearchParams(prev);
+    if (from) next.set('year_from', String(from));
+    else next.delete('year_from');
+    if (to) next.set('year_to', String(to));
+    else next.delete('year_to');
+    next.delete('page');
+    return next;
+  });
+}, [setSearchParams]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setLocalSearch(val);
@@ -89,6 +101,7 @@ export function PublicationsPage() {
           ordering={orderingParam}
           onYearFromChange={(v) => updateFilter('year_from', v ? String(v) : null)}
           onYearToChange={(v) => updateFilter('year_to', v ? String(v) : null)}
+          onYearRangeChange={handleYearRangeChange}
           onDirChange={(v) => updateFilter('direction', v ? String(v) : null)}
           onOrderingChange={(v) => updateFilter('ordering', v)}
         />

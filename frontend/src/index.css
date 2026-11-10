@@ -5,74 +5,139 @@
 
 /* Скрытие полосы прокрутки для каруселей */
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Стили для dual-range slider */
-.dual-range-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  pointer-events: none; /* Трек не реагирует на клики */
+/* Глобальная блокировка выделения текста на время перетаскивания.
+   Класс вешается на <body> из YearRangeSlider и снимается при отпускании. */
+body.yrs-dragging,
+body.yrs-dragging * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  cursor: grabbing !important;
 }
 
-/* Thumb для Chrome/Safari/Edge */
-.dual-range-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 20px;
-  width: 20px;
+/* ============================================================
+   YearRangeSlider (кастомный двойной слайдер)
+   Вся геометрия вынесена сюда, чтобы не зависеть от
+   arbitrary-значений Tailwind и не ловить дёрганье layout'а.
+   ============================================================ */
+
+.yrs {
+  --yrs-thumb-size: 22px;
+  --yrs-rail-height: 6px;
+  --yrs-accent: #003366;
+  --yrs-accent-soft: rgba(0, 51, 102, 0.14);
+}
+
+/* Внешняя область: сверху место под пузырь со значением,
+   по бокам — половина ползунка, чтобы крайние точки не обрезались.
+   Клики по этой области НИЧЕГО не делают (обработчиков нет). */
+.yrs__area {
+  position: relative;
+  padding: 34px calc(var(--yrs-thumb-size) / 2) 4px;
+  touch-action: none;
+}
+
+/* Линейка, относительно которой считаются проценты */
+.yrs__rail {
+  position: relative;
+  height: var(--yrs-rail-height);
+}
+
+.yrs__rail-bg {
+  position: absolute;
+  inset: 0;
+  background: #e5e7eb;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.yrs__rail-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--yrs-accent);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+/* Ползунок — единственный интерактивный элемент слайдера */
+.yrs__thumb {
+  position: absolute;
+  top: 50%;
+  width: var(--yrs-thumb-size);
+  height: var(--yrs-thumb-size);
+  margin: 0;
+  padding: 0;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #003366;
-  border: 3px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  pointer-events: auto; /* Thumb реагирует на клики */
-  margin-top: -7px;
-  transition: transform 0.15s ease;
+  background: #ffffff;
+  border: 4px solid var(--yrs-accent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  /* ВАЖНО: transform НЕ анимируем, иначе ползунок отстаёт от курсора */
+  transition: box-shadow 0.15s ease;
 }
 
-.dual-range-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-}
-
-/* Thumb для Firefox */
-.dual-range-slider::-moz-range-thumb {
-  height: 20px;
-  width: 20px;
+/* Невидимая расширенная зона захвата — легче попасть мышью/пальцем */
+.yrs__thumb::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
   border-radius: 50%;
-  background: #003366;
-  border: 3px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  pointer-events: auto;
-  transition: transform 0.15s ease;
 }
 
-.dual-range-slider::-moz-range-thumb:hover {
-  transform: scale(1.15);
+.yrs__thumb:hover {
+  box-shadow: 0 0 0 6px var(--yrs-accent-soft), 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
-/* Скрываем трек input */
-.dual-range-slider::-webkit-slider-runnable-track {
-  background: transparent;
-  height: 2px;
+.yrs__thumb:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 6px rgba(0, 51, 102, 0.28), 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
-.dual-range-slider::-moz-range-track {
-  background: transparent;
-  height: 2px;
+.yrs__thumb--active,
+.yrs__thumb--active:hover {
+  cursor: grabbing;
+  box-shadow: 0 0 0 9px rgba(0, 51, 102, 0.18), 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* Правый ползунок всегда поверх левого */
-.dual-range-slider-to {
-  z-index: 15 !important;
+.yrs__thumb:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.dual-range-slider-from {
-  z-index: 10 !important;
+/* Пузырь со значением над ползунком */
+.yrs__bubble {
+  position: absolute;
+  bottom: 16px;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--yrs-accent);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Подписи крайних годов */
+.yrs__bounds {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 11px;
+  color: #9ca3af;
+  pointer-events: none;
 }

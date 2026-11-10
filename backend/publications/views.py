@@ -3,7 +3,7 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Publication
 from .serializers import PublicationListSerializer, PublicationDetailSerializer
-from .filters import PublicationFilter  # <-- Импортируем новый фильтр
+from .filters import PublicationFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -14,7 +14,7 @@ class PublicationViewSet(viewsets.ReadOnlyModelViewSet):
     
     # ИЗМЕНЕНИЕ: используем кастомный FilterSet
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_class = PublicationFilter  # <-- Было filterset_fields
+    filterset_class = PublicationFilter
     
     search_fields = ['title', 'external_authors', 'authors_employees__full_name', 'doi', 'abstract']
     ordering_fields = ['year', 'title', 'created_at']
