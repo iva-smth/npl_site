@@ -3,20 +3,20 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Publication
 from .serializers import PublicationListSerializer, PublicationDetailSerializer
+from .filters import PublicationFilter  # <-- Импортируем новый фильтр
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
 
 class PublicationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = []
     lookup_field = 'slug'
     
+    # ИЗМЕНЕНИЕ: используем кастомный FilterSet
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['year', 'direction', 'authors_employees']
+    filterset_class = PublicationFilter  # <-- Было filterset_fields
     
-    # ИЗМЕНЕНИЕ: Поиск по внешним авторам и по ФИО сотрудников
     search_fields = ['title', 'external_authors', 'authors_employees__full_name', 'doi', 'abstract']
-    
-    # Сортировка по названию, году и, опционально, по первому автору (сложнее реализовать чисто на SQL для M2M, пока оставим как есть)
     ordering_fields = ['year', 'title', 'created_at']
     ordering = ['-year', '-created_at']
 
@@ -32,5 +32,6 @@ class PublicationViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['get'])
     def years(self, request):
+        """Возвращает список доступных лет для фильтра"""
         years = Publication.objects.values_list('year', flat=True).distinct().order_by('-year')
         return Response(list(years))

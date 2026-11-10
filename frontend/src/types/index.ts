@@ -111,6 +111,17 @@ export interface Publication {
   authors_employees: AuthorMinimal[];
 }
 
+export interface PublicationFilters {
+  year?: number;
+  year_from?: number;
+  year_to?: number;
+  direction?: number;
+  authors_employees?: number;
+  search?: string;
+  page?: number;
+  ordering?: string;
+}
+
 export interface User {
   id: number;
   username: string;

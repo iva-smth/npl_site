@@ -1,21 +1,30 @@
+// frontend/src/components/PublicationFilters.tsx
 import { useEffect, useState } from 'react';
 import { directionsApi } from '../api/services/directions';
 import { publicationsApi } from '../api/services/publications';
+import { YearRangeSlider } from './YearRangeSlider';
 import type { ResearchDirection } from '../types';
 
 interface Props {
-  selectedYear: number | null;
+  selectedYearFrom: number | null;
+  selectedYearTo: number | null;
   selectedDirId: number | null;
   ordering: string | null;
-  // searchQuery и onSearchChange удалены
-  onYearChange: (y: number | null) => void;
+  onYearFromChange: (y: number | null) => void;
+  onYearToChange: (y: number | null) => void;
   onDirChange: (id: number | null) => void;
   onOrderingChange: (val: string | null) => void;
 }
 
 export function PublicationFilters({
-  selectedYear, selectedDirId, ordering,
-  onYearChange, onDirChange, onOrderingChange
+  selectedYearFrom,
+  selectedYearTo,
+  selectedDirId,
+  ordering,
+  onYearFromChange,
+  onYearToChange,
+  onDirChange,
+  onOrderingChange,
 }: Props) {
   const [directions, setDirections] = useState<ResearchDirection[]>([]);
   const [availableYears, setAvailableYears] = useState<number[]>([]);
@@ -24,13 +33,15 @@ export function PublicationFilters({
     directionsApi.getAll().then(res => {
       if (res.data?.results) setDirections(res.data.results);
     });
-    // Загружаем доступные годы с бэкенда
     publicationsApi.getYears().then(res => {
       setAvailableYears(res.data);
     });
   }, []);
 
-  const FilterGroup = ({ title, children }: { title: string, children: React.ReactNode }) => (
+  const minYear = availableYears.length > 0 ? Math.min(...availableYears) : 2000;
+  const maxYear = availableYears.length > 0 ? Math.max(...availableYears) : 2026;
+
+  const FilterGroup = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="mb-6">
       <h4 className="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wider">{title}</h4>
       {children}
@@ -40,19 +51,16 @@ export function PublicationFilters({
   return (
     <aside className="w-full lg:w-1/4 shrink-0 space-y-6">
       <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 sticky top-24">
-        
-        {/* Фильтр по году (Динамический) */}
-        <FilterGroup title="Год публикации">
-          <select
-            value={selectedYear || ''}
-            onChange={(e) => onYearChange(e.target.value ? Number(e.target.value) : null)}
-            className="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-primary outline-none text-sm"
-          >
-            <option value="">Все годы</option>
-            {availableYears.map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+        {/* Единый слайдер диапазона лет */}
+        <FilterGroup title="Период публикации">
+          <YearRangeSlider
+            minYear={minYear}
+            maxYear={maxYear}
+            yearFrom={selectedYearFrom}
+            yearTo={selectedYearTo}
+            onYearFromChange={onYearFromChange}
+            onYearToChange={onYearToChange}
+          />
         </FilterGroup>
 
         {/* Сортировка */}
@@ -63,10 +71,10 @@ export function PublicationFilters({
             className="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-primary outline-none text-sm"
           >
             <option value="default">По умолчанию (новые)</option>
-            <option value="authors">По имени авторов (А-Я)</option>
-            <option value="-authors">По имени авторов (Я-А)</option>
             <option value="title">По названию (А-Я)</option>
             <option value="-title">По названию (Я-А)</option>
+            <option value="year">По году (старые сначала)</option>
+            <option value="-year">По году (новые сначала)</option>
           </select>
         </FilterGroup>
 
@@ -94,7 +102,6 @@ export function PublicationFilters({
             ))}
           </div>
         </FilterGroup>
-
       </div>
     </aside>
   );

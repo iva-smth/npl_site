@@ -1,3 +1,4 @@
+// frontend/src/pages/public/PublicationsPage.tsx
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { publicationsApi } from '../../api/services/publications';
@@ -11,7 +12,8 @@ export function PublicationsPage() {
   
   // Читаем параметры из URL
   const authorId = searchParams.get('author_id');
-  const yearParam = searchParams.get('year');
+  const yearFromParam = searchParams.get('year_from');
+  const yearToParam = searchParams.get('year_to');
   const dirParam = searchParams.get('direction');
   const pageParam = searchParams.get('page');
   const orderingParam = searchParams.get('ordering');
@@ -19,16 +21,15 @@ export function PublicationsPage() {
 
   const [data, setData] = useState<PaginatedResponse<PublicationList> | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Локальное состояние для поля ввода (чтобы не дергать API на каждый символ без debounce, 
-  // но для простоты пока используем прямой binding или можно добавить debounce позже)
   const [localSearch, setLocalSearch] = useState(searchParam || '');
 
   useEffect(() => {
     setLoading(true);
     const params: any = {};
+    
     if (authorId) params.authors_employees = authorId;
-    if (yearParam) params.year = yearParam;
+    if (yearFromParam) params.year_from = yearFromParam;
+    if (yearToParam) params.year_to = yearToParam;
     if (dirParam) params.direction = dirParam;
     if (pageParam) params.page = pageParam;
     if (orderingParam) params.ordering = orderingParam;
@@ -38,7 +39,7 @@ export function PublicationsPage() {
       .then(res => setData(res.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
-  }, [authorId, yearParam, dirParam, pageParam, orderingParam, searchParam]);
+  }, [authorId, yearFromParam, yearToParam, dirParam, pageParam, orderingParam, searchParam]);
 
   const updateFilter = useCallback((key: string, value: string | null) => {
     setSearchParams(prev => {
@@ -50,11 +51,9 @@ export function PublicationsPage() {
     });
   }, [setSearchParams]);
 
-  // Обработчик изменения поиска
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setLocalSearch(val);
-    // Обновляем URL сразу (можно добавить debounce, если нужно)
     updateFilter('search', val || null);
   };
 
@@ -84,18 +83,19 @@ export function PublicationsPage() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Левая колонка: Фильтры */}
         <PublicationFilters
-          selectedYear={yearParam ? Number(yearParam) : null}
+          selectedYearFrom={yearFromParam ? Number(yearFromParam) : null}
+          selectedYearTo={yearToParam ? Number(yearToParam) : null}
           selectedDirId={dirParam ? Number(dirParam) : null}
           ordering={orderingParam}
-          onYearChange={(v) => updateFilter('year', v ? String(v) : null)}
+          onYearFromChange={(v) => updateFilter('year_from', v ? String(v) : null)}
+          onYearToChange={(v) => updateFilter('year_to', v ? String(v) : null)}
           onDirChange={(v) => updateFilter('direction', v ? String(v) : null)}
           onOrderingChange={(v) => updateFilter('ordering', v)}
         />
 
         {/* Правая колонка: Поиск и Список */}
         <main className="w-full lg:w-3/4">
-          
-          {/* Поле поиска (как в EquipmentPage) */}
+          {/* Поле поиска */}
           <div className="mb-6 relative">
             <input
               type="text"
@@ -137,11 +137,9 @@ export function PublicationsPage() {
                       ← Назад
                     </button>
                   )}
-                  
                   <span className="text-sm text-gray-500 px-4">
                     Страница {pageParam || 1}
                   </span>
-
                   {data.next && (
                     <button
                       onClick={() => {

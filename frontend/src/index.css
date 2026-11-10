@@ -11,3 +11,68 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Стили для dual-range slider */
+.dual-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none; /* Трек не реагирует на клики */
+}
+
+/* Thumb для Chrome/Safari/Edge */
+.dual-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #003366;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  pointer-events: auto; /* Thumb реагирует на клики */
+  margin-top: -7px;
+  transition: transform 0.15s ease;
+}
+
+.dual-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Thumb для Firefox */
+.dual-range-slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #003366;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s ease;
+}
+
+.dual-range-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Скрываем трек input */
+.dual-range-slider::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 2px;
+}
+
+.dual-range-slider::-moz-range-track {
+  background: transparent;
+  height: 2px;
+}
+
+/* Правый ползунок всегда поверх левого */
+.dual-range-slider-to {
+  z-index: 15 !important;
+}
+
+.dual-range-slider-from {
+  z-index: 10 !important;
+}

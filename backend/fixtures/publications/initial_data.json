@@ -6,14 +6,14 @@
       "title": "High-power impulse electron beam generation",
       "slug": "high-power-impulse-electron-beam",
       "external_authors": "Ivanov A.A., Sidorov K.M.",
-      "abstract": "Investigation of high-power impulse electron beam generation using plasma cathode",
+      "abstract": "Investigation of high-power impulse electron beam generation using plasma cathode. The study presents experimental results on beam current density and energy distribution.",
       "year": 2025,
       "doi": "10.1016/j.nima.2025.01.001",
       "link": "https://doi.org/10.1016/j.nima.2025.01.001",
-      "pdf_file": "publications/ivanov2025.pdf",
+      "pdf_file": "",
       "direction": 1,
       "authors_employees": [1, 2],
-      "created_at": "2026-01-01T10:00:00Z"
+      "created_at": "2025-03-15T10:00:00Z"
     }
   },
   {
@@ -23,14 +23,14 @@
       "title": "Plasma diagnostics using optical emission spectroscopy",
       "slug": "plasma-diagnostics-spectroscopy",
       "external_authors": "Kuznetsova E.A.",
-      "abstract": "Application of optical emission spectroscopy for plasma diagnostics in discharge systems",
+      "abstract": "Application of optical emission spectroscopy for plasma diagnostics in discharge systems. Temperature and electron density measurements are presented.",
       "year": 2025,
       "doi": "10.1088/1361-6595/ab1234",
       "link": "https://doi.org/10.1088/1361-6595/ab1234",
-      "pdf_file": "publications/petrov2025.pdf",
+      "pdf_file": "",
       "direction": 3,
       "authors_employees": [2],
-      "created_at": "2026-01-01T10:00:00Z"
+      "created_at": "2025-02-10T10:00:00Z"
     }
   },
   {
@@ -40,14 +40,14 @@
       "title": "Spark discharge in liquids for nanoparticle synthesis",
       "slug": "spark-discharge-nanoparticles",
       "external_authors": "Ivanov A.B.",
-      "abstract": "Novel method of nanoparticle synthesis using spark discharge in liquids",
+      "abstract": "Novel method of nanoparticle synthesis using spark discharge in liquids. Particle size distribution and morphology analysis.",
       "year": 2024,
       "doi": "",
       "link": "https://conference.example.com/2024/papers/123",
-      "pdf_file": "publications/sidorov2024.pdf",
+      "pdf_file": "",
       "direction": 2,
       "authors_employees": [3],
-      "created_at": "2026-01-01T10:00:00Z"
+      "created_at": "2024-11-20T10:00:00Z"
     }
   },
   {
@@ -57,14 +57,286 @@
       "title": "Устройство для генерации импульсных пучков электронов",
       "slug": "patent-electron-beam-device",
       "external_authors": "",
-      "abstract": "Патент на устройство для генерации мощных импульсных пучков электронов",
+      "abstract": "Патент на устройство для генерации мощных импульсных пучков электронов с использованием взрывоэмиссионного катода.",
       "year": 2025,
       "doi": "",
       "link": "",
-      "pdf_file": "publications/patent2025.pdf",
+      "pdf_file": "",
       "direction": 1,
       "authors_employees": [1, 2],
-      "created_at": "2026-01-01T10:00:00Z"
+      "created_at": "2025-01-05T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 5,
+    "fields": {
+      "title": "Vacuum arc ion source optimization for industrial applications",
+      "slug": "vacuum-arc-ion-source-optimization",
+      "external_authors": "Smith J., Johnson R.",
+      "abstract": "Optimization of vacuum arc ion source parameters for metal ion implantation. Beam uniformity and stability improvement techniques.",
+      "year": 2024,
+      "doi": "10.1063/1.5145678",
+      "link": "https://doi.org/10.1063/1.5145678",
+      "pdf_file": "",
+      "direction": 1,
+      "authors_employees": [1, 4],
+      "created_at": "2024-08-22T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 6,
+    "fields": {
+      "title": "Barrier discharge plasma for surface modification",
+      "slug": "barrier-discharge-surface-modification",
+      "external_authors": "",
+      "abstract": "Study of dielectric barrier discharge plasma for polymer surface modification. Wettability and adhesion properties analysis.",
+      "year": 2024,
+      "doi": "10.1016/j.surfcoat.2024.130456",
+      "link": "https://doi.org/10.1016/j.surfcoat.2024.130456",
+      "pdf_file": "",
+      "direction": 3,
+      "authors_employees": [2, 5],
+      "created_at": "2024-06-14T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 7,
+    "fields": {
+      "title": "Наносекундный разряд в воздухе высокого давления",
+      "slug": "nanosecond-discharge-high-pressure",
+      "external_authors": "",
+      "abstract": "Исследование динамики наносекундного разряда в воздухе при давлениях до 10 атм. Измерения скорости стримеров и распределения электрического поля.",
+      "year": 2023,
+      "doi": "",
+      "link": "",
+      "pdf_file": "",
+      "direction": 2,
+      "authors_employees": [4],
+      "created_at": "2023-12-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 8,
+    "fields": {
+      "title": "RF plasma CVD synthesis of carbon nanotubes",
+      "slug": "rf-plasma-cvd-carbon-nanotubes",
+      "external_authors": "Zhang L., Wang H.",
+      "abstract": "Synthesis of multi-walled carbon nanotubes using RF plasma chemical vapor deposition. Catalyst optimization and growth mechanism study.",
+      "year": 2023,
+      "doi": "10.1016/j.carbon.2023.05.012",
+      "link": "https://doi.org/10.1016/j.carbon.2023.05.012",
+      "pdf_file": "",
+      "direction": 3,
+      "authors_employees": [5, 6],
+      "created_at": "2023-09-18T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 9,
+    "fields": {
+      "title": "High-current electron beam transport in drift space",
+      "slug": "high-current-beam-transport",
+      "external_authors": "",
+      "abstract": "Experimental study of high-current electron beam transport in vacuum drift space. Self-magnetic field effects on beam focusing.",
+      "year": 2023,
+      "doi": "10.1063/5.0156789",
+      "link": "https://doi.org/10.1063/5.0156789",
+      "pdf_file": "",
+      "direction": 1,
+      "authors_employees": [1, 6],
+      "created_at": "2023-07-05T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 10,
+    "fields": {
+      "title": "Озонирование воздуха в барьерном разряде",
+      "slug": "ozone-generation-barrier-discharge",
+      "external_authors": "",
+      "abstract": "Энергоэффективный источник озона на базе диэлектрического барьерного разряда. Оптимизация геометрии разрядного промежутка.",
+      "year": 2022,
+      "doi": "",
+      "link": "",
+      "pdf_file": "",
+      "direction": 2,
+      "authors_employees": [3, 4],
+      "created_at": "2022-11-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 11,
+    "fields": {
+      "title": "Plasma spraying of thermal barrier coatings",
+      "slug": "plasma-spraying-thermal-barrier",
+      "external_authors": "Petrov V.S.",
+      "abstract": "Development of plasma spraying technology for thermal barrier coatings on gas turbine blades. Microstructure and thermal cycling tests.",
+      "year": 2022,
+      "doi": "10.1016/j.jeurceramsoc.2022.03.045",
+      "link": "https://doi.org/10.1016/j.jeurceramsoc.2022.03.045",
+      "pdf_file": "",
+      "direction": 3,
+      "authors_employees": [2],
+      "created_at": "2022-05-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 12,
+    "fields": {
+      "title": "Импульсный ускоритель электронов для радиационной стерилизации",
+      "slug": "pulse-accelerator-sterilization",
+      "external_authors": "",
+      "abstract": "Разработка компактного импульсного ускорителя электронов для промышленной радиационной стерилизации медицинских изделий.",
+      "year": 2022,
+      "doi": "",
+      "link": "",
+      "pdf_file": "",
+      "direction": 1,
+      "authors_employees": [1],
+      "created_at": "2022-03-10T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 13,
+    "fields": {
+      "title": "Electrohydraulic effect in pulsed discharge in water",
+      "slug": "electrohydraulic-effect-water",
+      "external_authors": "Brown T., Davis M.",
+      "abstract": "Investigation of electrohydraulic effect in pulsed discharge in water for liquid treatment and nanoparticle generation.",
+      "year": 2021,
+      "doi": "10.1088/1361-6595/ac1234",
+      "link": "https://doi.org/10.1088/1361-6595/ac1234",
+      "pdf_file": "",
+      "direction": 2,
+      "authors_employees": [3, 5],
+      "created_at": "2021-10-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 14,
+    "fields": {
+      "title": "Метод магнитной фокусировки сильноточных пучков",
+      "slug": "magnetic-focusing-high-current-beams",
+      "external_authors": "",
+      "abstract": "Теоретическое и экспериментальное исследование магнитной фокусировки сильноточных электронных пучков в вакуумных диодах.",
+      "year": 2021,
+      "doi": "",
+      "link": "",
+      "pdf_file": "",
+      "direction": 1,
+      "authors_employees": [1, 4, 6],
+      "created_at": "2021-06-22T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 15,
+    "fields": {
+      "title": "Thin film deposition by plasma-enhanced CVD",
+      "slug": "thin-film-plasma-cvd",
+      "external_authors": "",
+      "abstract": "Deposition of silicon nitride thin films using plasma-enhanced chemical vapor deposition. Film properties and deposition rate optimization.",
+      "year": 2020,
+      "doi": "10.1016/j.tsf.2020.138123",
+      "link": "https://doi.org/10.1016/j.tsf.2020.138123",
+      "pdf_file": "",
+      "direction": 3,
+      "authors_employees": [5],
+      "created_at": "2020-12-05T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 16,
+    "fields": {
+      "title": "Разряд в воде для очистки сточных вод",
+      "slug": "water-discharge-wastewater-treatment",
+      "external_authors": "",
+      "abstract": "Применение импульсного разряда в воде для очистки сточных вод от органических загрязнителей. Эффективность разложения красителей.",
+      "year": 2020,
+      "doi": "",
+      "link": "",
+      "pdf_file": "",
+      "direction": 2,
+      "authors_employees": [3],
+      "created_at": "2020-09-18T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 17,
+    "fields": {
+      "title": "Explosive emission cathode lifetime study",
+      "slug": "explosive-emission-cathode-lifetime",
+      "external_authors": "Wilson K.",
+      "abstract": "Long-term stability study of explosive emission cathodes based on graphite and carbon fiber materials for high-power microwave devices.",
+      "year": 2019,
+      "doi": "10.1063/1.5123456",
+      "link": "https://doi.org/10.1063/1.5123456",
+      "pdf_file": "",
+      "direction": 1,
+      "authors_employees": [1, 2],
+      "created_at": "2019-11-28T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 18,
+    "fields": {
+      "title": "Износостойкие покрытия на основе карбида вольфрама",
+      "slug": "tungsten-carbide-wear-resistant-coatings",
+      "external_authors": "",
+      "abstract": "Плазменное напыление износостойких покрытий на основе карбида вольфрама для деталей машиностроения. Микроструктура и трибологические испытания.",
+      "year": 2019,
+      "doi": "",
+      "link": "",
+      "pdf_file": "",
+      "direction": 3,
+      "authors_employees": [2, 5],
+      "created_at": "2019-05-14T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 19,
+    "fields": {
+      "title": "Streamer discharge dynamics in atmospheric pressure air",
+      "slug": "streamer-discharge-atmospheric",
+      "external_authors": "Lee S., Kim J.",
+      "abstract": "High-speed imaging of streamer discharge dynamics in atmospheric pressure air. Propagation velocity and branching patterns analysis.",
+      "year": 2018,
+      "doi": "10.1088/1361-6595/aa9876",
+      "link": "https://doi.org/10.1088/1361-6595/aa9876",
+      "pdf_file": "",
+      "direction": 2,
+      "authors_employees": [4, 6],
+      "created_at": "2018-10-08T10:00:00Z"
+    }
+  },
+  {
+    "model": "publications.publication",
+    "pk": 20,
+    "fields": {
+      "title": "Linear induction accelerator module design",
+      "slug": "linear-induction-accelerator-module",
+      "external_authors": "",
+      "abstract": "Design and testing of linear induction accelerator module for radiation sterilization applications. Voltage pulse characteristics and beam parameters.",
+      "year": 2018,
+      "doi": "",
+      "link": "",
+      "pdf_file": "",
+      "direction": 1,
+      "authors_employees": [1, 6],
+      "created_at": "2018-03-22T10:00:00Z"
     }
   }
 ]
